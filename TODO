@@ -9,10 +9,6 @@ validate S3 URI
 
 holiday logic
 
-app-id (sub-group) put yaml in its own app folder
-
-app-id.yaml (global override, envirnoment, override Today-PM start)
-
 Parse datetime string from Gene's Powershell DateTime format 
 --> to my Python format
 

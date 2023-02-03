@@ -14,7 +14,7 @@ def get_job_config_path(job_name: str) -> Path:
             f'Using environment variable FILE_WATCH_JOB_PATH for job config: {FILE_WATCH_JOB_PATH}'
         )
     else:
-        FILE_WATCH_JOB_PATH = Path.cwd()
+        FILE_WATCH_JOB_PATH = Path.cwd() + '\\jobs'
         print(f'Using current working directory for job config: {FILE_WATCH_JOB_PATH}')
     path = Path(FILE_WATCH_JOB_PATH)
     return path.joinpath(f"{job_name}.yml")

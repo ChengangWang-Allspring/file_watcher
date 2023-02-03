@@ -5,10 +5,10 @@ import traceback
 import logging
 import logging.config
 from pathlib import Path
-from commons import *
-from config_man import *
-import actions
-import helpers
+from .commons import *
+from .config_man import *
+from .actions import *
+from .helpers import *
 
 
 def parse_args():
@@ -64,22 +64,13 @@ def main():
         args = parse_args()
 
         # check if yaml config exists
-        config_path: Path = helpers.get_job_config_path(args.job_name)
+        config_path: Path = get_job_config_path(args.job_name)
         print(config_path)
         if not config_path.exists():
-            raise commons.JobConfigError(
-                f"Cannot find {args.job_name}.yml config file in "
-            )
-
-        if "/" in args.job_name or "\\" in args.job_name:
-            job_name = args.job_name.replace("\\", "/")
-            s = job_name.split("/")
-            job_name = s[len(s) - 1]
-        else:
-            job_name = args.job_name
+            raise JobConfigError(f"Cannot find {args.job_name}.yml config file in ")
 
         # initialize job config along with logger
-        config = ConfigManager.get_config(job_name, config_path.resolve())
+        config = ConfigManager.get_config(args.job_name, config_path.resolve())
         config.force_debug = args.debug
         config.force_env = args.environment
         log = logging.getLogger()
@@ -112,18 +103,18 @@ def main():
         file_list = []
         if config.watch_file:
             log.info("<<< Watching file ... >>>")
-            file_list = actions.perform_watch()
+            file_list = perform_watch()
 
         if config.copy_file:
             log.info("<<< Copying file ... >>>")
             if len(file_list) > 0:
-                actions.peform_copy(file_list)
+                peform_copy(file_list)
             else:
-                raise commons.FileWatchError("Unexpected empty file_list")
+                raise FileWatchError("Unexpected empty file_list")
 
         if config.archive_file:
             log.info("<<< Archiving file ... >>>")
-            actions.perform_archive()
+            perform_archive()
 
         log.info("EXIT 0")
 
