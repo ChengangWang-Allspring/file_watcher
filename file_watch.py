@@ -31,8 +31,8 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="File_watch utility built in Python. Please refer to README for usage"
     )
-    parser.add_argument('-job', '--job_name', dest='job_name', required=True, help='job_name file without .yml extension')
-    parser.add_argument('-env','--environment', dest='environment', help='runtime environment [DEV | UAT | PROD ]')
+    parser.add_argument('-job', dest='job_name', required=True, help='job_name file without .yml extension')
+    parser.add_argument('-env', dest='environment', help='runtime environment [DEV | UAT | PROD ]')
     parser.add_argument('-d', '--debug', dest='debug', action='store_true', help='force DEBUG log message')
     return parser.parse_args()
 
