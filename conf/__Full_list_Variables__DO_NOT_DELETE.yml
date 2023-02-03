@@ -1,0 +1,31 @@
+app_id: AGTPS
+job_description: file watcher For APX account file, produced by Everstage, arrive early in the morning
+log_path: C:\cwang\Apps\AGTPS\file_watcher\logs
+use_holiday: true
+watch_file: 
+    file_name: [RIC_APX_Holdings_20230127.dat,RIC_APX_Accounts_20230127.dat]
+    file_count: 2
+    source_path: C:\cwang\Apps\AGTPS\theWarehouse_Import\inbound
+    min_size: 10000
+    sleep_time: 5
+    look_time: 20
+    use_aged_file: false
+    file_age_in_hours: null
+copy_file: 
+    copy_file_name: null
+    copy_path: C:\cwang\Temp
+archive_file: 
+    archive_file_name: null
+    archive_path: C:\cwang\Apps\archive
+environs:
+  - local: 
+      source_path: C:\temp
+  - dev: 
+      source_path: s3://dev-virtual-path/AGTPS
+  - uat: 
+      source_path: s3://uat-virtual-path/AGTPS
+  - prod: 
+      source_path: s3://prod-virtual-path/AGTPS
+
+
+

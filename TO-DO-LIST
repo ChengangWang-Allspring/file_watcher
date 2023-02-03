@@ -1,0 +1,23 @@
+s3 read
+
+path archive
+s3 copy
+s3 archive
+
+config parameter validation
+validate S3 URI
+
+holiday logic
+
+app-id (sub-group) put yaml in its own app folder
+
+app-id.yaml (global override, envirnoment, override Today-PM start)
+
+Parse datetime string from Gene's Powershell DateTime format 
+--> to my Python format
+
+Parse from my Pyathon format --> to actually filename, considering Global "app-id.yaml"
+override (if PD is not 8PM central)
+
+
+add method to check if file (may be being copied) stablized

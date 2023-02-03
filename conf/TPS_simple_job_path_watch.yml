@@ -1,0 +1,16 @@
+app_id: AGTPS      
+job_description: file watcher For APX account and Holdings file
+log_path: C:\cwang\Apps\AGTPS\file_watcher\logs
+use_holiday: true
+watch_file: 
+  file_name: [RIC_APX_Holdings_20230127.dat,RIC_APX_Accounts_20230127.dat]
+  file_count: 2
+  source_path: C:\cwang\Apps\AGTPS\theWarehouse_Import\inbound
+  sleep_time: 5
+  look_time: 30
+prod:
+  source_path: C:\temp
+  use_holiday: false
+
+
+
