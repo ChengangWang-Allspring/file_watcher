@@ -1,29 +1,16 @@
-class LogConfigError(Exception):
-    pass
+JOBS_YML_RELATIVE_PATH = 'config/jobs_yml/'
+LOGS_RELATIVE_PATH = 'logs/'
 
-class JobConfigError(Exception):
-    pass
-
-class S3ConfigError(Exception):
-    pass
-
-class HolidayConfigError(Exception):
-    pass
-
-
-class FileWatchTimeOutError(Exception):
-    pass
-
-class FileWatchError(Exception):
-    pass
-
+REGEX_S3_URI: str = '^s3://([^/]+)/(.*?[^/]+/?)$'
+REGEX_UNC: str = '^\\\\([a-zA-Z0-9_.$-]+\\[a-zA-Z0-9_.$-\\]+)$'
+REGEX_LOCAL: str = ''
 
 LOGGING_YML = """
 version: 1
 disable_existing_loggers: true
 formatters:
     simple:
-        format: "%(asctime)s - %(levelname)s - %(message)s"
+        format: '%(asctime)s - %(levelname)s - %(message)s'
 handlers:
   console:
     class: logging.StreamHandler
@@ -34,7 +21,7 @@ handlers:
     class: logging.FileHandler
     level: DEBUG
     formatter: simple
-    filename: <to-be-defined-in-job-config>
+    filename: <job-name_YYYYMMDD.log> 
 loggers:
   fileWatchLogger:
     level: DEBUG

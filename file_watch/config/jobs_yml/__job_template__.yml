@@ -1,0 +1,22 @@
+# Require job setting
+app_id: AGTPS
+job_description: file watcher For APX account file, produced by Everstage, arrive early in the morning
+use_holiday: true
+use_watch: true
+# Required setting for watch file
+file_name: [RIC_APX_Holdings_TODAY.dat, RIC_APX_Accounts_TODAY.dat]
+file_count: 2
+source_path: C:\cwang\Apps\AGTPS\theWarehouse_Import\inbound
+sleep_time: 5
+look_time: 20
+# Optional setting
+min_size: 10000
+exclude_age: 12
+# Optinal copy files
+use_copy: true
+copy_name: 
+copy_path: C:\cwang\abcde
+# Optinal Archive files
+use_archive: true
+archive_name: 
+archive_path: C:\cwang\

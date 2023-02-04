@@ -1,4 +1,4 @@
-from .file_watch import main
+from .program import main
 
 
 if __name__ == "__main__":
