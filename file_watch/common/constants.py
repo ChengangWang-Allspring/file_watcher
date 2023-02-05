@@ -1,6 +1,3 @@
-JOBS_YML_RELATIVE_PATH = 'config/jobs_yml/'
-LOGS_RELATIVE_PATH = 'logs/'
-
 REGEX_S3_URI: str = '^s3://([^/]+)/(.*?[^/]+/?)$'
 REGEX_UNC: str = '^\\\\([a-zA-Z0-9_.$-]+\\[a-zA-Z0-9_.$-\\]+)$'
 REGEX_LOCAL: str = ''

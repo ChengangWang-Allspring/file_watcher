@@ -9,7 +9,7 @@ def read_csv_config(job_name: str) -> dict:
     pass
 
 
-def read_yaml_config(job_name: str) -> dict:
+def read_yml_config(job_name: str) -> dict:
 
     try:
         yml_config_path = path_helper.get_jobs_yml_file_path(job_name)

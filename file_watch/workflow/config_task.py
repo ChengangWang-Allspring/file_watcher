@@ -3,12 +3,12 @@ import yaml
 import logging
 import argparse
 
-from file_watch.common import constants
-from file_watch.common.valid_job_config import ValidJobConfig
-from file_watch.common.job_config_factory import JobConfigFactory
-from file_watch.common.enums import JOB_CONFIG_TYPE
-from file_watch.common.settings import Settings
 from file_watch.helpers import path_helper
+from file_watch.common.settings import Settings
+from file_watch.common.enums import JOB_CONFIG_TYPE
+from file_watch.common import constants
+from file_watch.config_util.config_factory import ConfigFactory
+from file_watch.config_util.job_config import JobConfig
 
 
 def parse_args():
@@ -45,10 +45,10 @@ def set_log_level(log, debug: bool) -> None:
         handler.setLevel(level)
 
 
-def validate_job_config(job_name: str) -> ValidJobConfig:
+def validate_job_config(job_name: str) -> JobConfig:
 
     Settings.job_config_path = path_helper.get_jobs_yml_file_path(job_name)
     Settings.job_config_type = JOB_CONFIG_TYPE.JOB_CONFIG_TYPE_YML
-    config_dict: dict = JobConfigFactory.get_config_dict(job_name, JOB_CONFIG_TYPE.JOB_CONFIG_TYPE_YML)
-    config = ValidJobConfig(**config_dict)
+    config_dict: dict = ConfigFactory.get_config_dict(job_name, JOB_CONFIG_TYPE.JOB_CONFIG_TYPE_YML)
+    config = JobConfig(**config_dict)
     return config

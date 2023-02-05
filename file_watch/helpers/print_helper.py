@@ -1,6 +1,6 @@
 import logging
 
-from file_watch.common.valid_job_config import ValidJobConfig
+from file_watch.config_util.job_config import JobConfig
 from file_watch.common.settings import Settings
 
 
@@ -15,7 +15,7 @@ def print_settings():
     log.info(f'{"job_config_type"} : {Settings.job_config_type }')
 
 
-def print_job_config(config: ValidJobConfig):
+def print_job_config(config: JobConfig):
 
     log = logging.getLogger()
     log.info('<< Job Config Variables >>')

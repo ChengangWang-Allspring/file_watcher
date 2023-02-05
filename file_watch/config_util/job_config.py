@@ -4,7 +4,9 @@ from typing import Optional, List
 from file_watch.helpers import path_helper, valid_helper, file_name_helper
 
 
-class ValidJobConfig(BaseModel):
+class JobConfig(BaseModel):
+    # self validatable job configuration class
+
     app_id: str
     description: Optional[str]
     use_holiday: bool = True
