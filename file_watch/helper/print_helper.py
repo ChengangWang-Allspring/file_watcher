@@ -1,28 +1,27 @@
 import logging
 
-from file_watch.config_util.job_config import JobConfig
-from file_watch.common.settings import Settings
+from file_watch.core.config_core import ValidJobConfig
+from file_watch.helper.common import Setting
 
 
 def print_settings():
 
     log = logging.getLogger()
     log.info('<< Settings >>')
-    log.info(f'{"debug"} : {Settings.debug }')
-    log.info(f'{"job_name"} : {Settings.job_name }')
-    log.info(f'{"log_file_path"} : {Settings.log_file_path }')
-    log.info(f'{"job_config_path"} : {Settings.job_config_path }')
-    log.info(f'{"job_config_type"} : {Settings.job_config_type }')
+    log.info(f'{"debug"} : {Setting.debug }')
+    log.info(f'{"job_name"} : {Setting.job_name }')
+    log.info(f'{"log_file_path"} : {Setting.log_file_path }')
+    log.info(f'{"job_config_path"} : {Setting.job_config_path }')
+    log.info(f'{"job_config_type"} : {Setting.job_config_type }')
 
 
-def print_job_config(config: JobConfig):
+def print_job_config(config: ValidJobConfig):
 
     log = logging.getLogger()
     log.info('<< Job Config Variables >>')
     log.info(f'{"app_id"} : {config.app_id }')
     log.info(f'{"description"} : {config.description }')
     log.info(f'{"use_holiday"} : {config.use_holiday }')
-    log.info(f'{"use_watch"} : {config.use_watch }')
     log.info(f'{"file_name"} : {config.file_name }')
     log.info(f'{"file_count"} : {config.file_count }')
     log.info(f'{"source_path"} : {config.source_path }')

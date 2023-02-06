@@ -1,7 +1,41 @@
 import boto3
 import botocore.exceptions
+import yaml
+
 
 import logging
+from pathlib import Path
+from datetime import datetime
+
+from file_watch.helper import common
+from file_watch.helper.common import Setting
+
+
+def read_csv_config(job_name: str) -> dict:
+    pass
+
+
+def read_yml_config(job_name: str) -> dict:
+
+    try:
+        yml_config_path = common.get_yml_file_path(job_name)
+        with open(yml_config_path, 'r') as f:
+            config_dict = yaml.safe_load(f)
+        return config_dict
+    except Exception as ex:
+        ex.add_note(f'Error reading job config yml file: {yml_config_path}')
+        raise ex
+
+
+def read_db_config(job_name: str) -> dict:
+    pass
+
+
+def is_path_valid(my_path: str, filename: str = None) -> bool:
+
+    # consider 3 cases including UNC, local and S3
+
+    pass
 
 
 def get_files_on_s3(my_bucket: str, my_prefix: str) -> list:

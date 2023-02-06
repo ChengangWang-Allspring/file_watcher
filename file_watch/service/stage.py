@@ -6,50 +6,13 @@ import fnmatch
 import time
 import os
 
-from .static import *
-from ..helpers import *
-from ..helpers import *
-from ..common.constants import *
-from .static import *
-
-
-def validate_job_config(job_yml_path: str) -> None:
-    # initialize and validate JobConfig
-
-    with open(job_yml_path, "r") as f:
-        config_dict = yaml.safe_load(f)
-    config = JobConfig(**config_dict)
-    print(config.dict())
-
-
-def config_logging(self) -> None:
-    # validate log_path from <job_name>.yml, required for logger setup
-
-    # check and set log_path from job config
-    self.set_required_key("log_path")
-    # check if log_path permission
-    if not is_path_writable(self.log_path):
-        raise JobConfigError(
-            f"log_path is not correct or not writable: {self.log_path}"
-        )
-
-    # resolve absolute log_file_path
-    date_str = datetime.today().strftime("%Y%m%d")
-    path = Path(self.log_path).joinpath(f"{self.job_name}_{date_str}.log")
-    self.LOG_FILE_PATH = path.resolve()
-
-    # set up logger
-    # with open(Path(__file__).parent.joinpath('logging.yml'), 'r') as f:
-    # config = yaml.safe_load(f.read())
-    config = yaml.safe_load(LOGGING_YML)
-    print(f"configuring log_path in logger: {self.LOG_FILE_PATH}")
-    # overide logger's filename using log_path
-    config["handlers"]["file"]["filename"] = self.LOG_FILE_PATH
-    logging.config.dictConfig(config)
-
 
 def perform_watch() -> list:
-    # File Watch - <while> loop Logic
+    """ File Watch primary while loop Logic """
+
+    file_list = []
+    log.info('<<< Watching file ... >>>')
+    file_list = perform_watch()
 
     config = ConfigManager.get_config()
     log = logging.getLogger()

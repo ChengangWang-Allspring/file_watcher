@@ -2,7 +2,6 @@
 app_id: AGTPS
 description: file watcher For APX account file, produced by Everstage, arrive early in the morning
 use_holiday: true
-use_watch: true
 # Required setting for watch file
 file_name: [RIC_APX_Holdings_TODAY.dat, RIC_APX_Accounts_TODAY.dat]
 file_count: 2

@@ -1,16 +1,25 @@
 from pydantic import BaseModel, validator, ValidationError, root_validator
 from typing import Optional, List
+from file_watch.core import file_name_helper
 
-from file_watch.helpers import path_helper, valid_helper, file_name_helper
+
+def list_has_dups(my_list: list) -> bool:
+    """ convert list to set for dup check excluding None """
+
+    my_list = [item for item in my_list if item is not None]
+    my_set = set(my_list)
+    if len(my_set) != len(my_list):
+        return True
+    else:
+        return False
 
 
-class JobConfig(BaseModel):
-    # self validatable job configuration class
+class ValidJobConfig(BaseModel):
+    """ Validatable job config class using Pydantic """
 
     app_id: str
     description: Optional[str]
     use_holiday: bool = True
-    use_watch: bool = True
     file_name: List[str]
     file_count: int
     source_path: str
@@ -29,12 +38,6 @@ class JobConfig(BaseModel):
     source_path_type: str = None
     effective_file_name: str = None
 
-    @validator('use_watch')
-    def validate_use_watch(cls, value):
-        if not value:
-            raise ValueError('value must be true')
-        return value
-
     @validator('file_count')
     def validate_file_count(cls, value, values):
         if 'file_name' in values and value < len(values['file_name']):
@@ -51,16 +54,18 @@ class JobConfig(BaseModel):
 
     @root_validator
     def validate_no_dup_source_path(cls, values):
-        # more complex validation logic
+        """ business logic validation """
+
         # source, copy and archive paths can not be the same
         path_list = [values.get(item) for item in ('source_path', 'copy_path', 'archive_path')]
-        if valid_helper.has_dups_exclude_none(path_list):
+        if list_has_dups(path_list):
             raise ValueError('duplicate values in source_path, copy_path or archive_path')
+
         # if use_copy true, copy_name should be null or same len as source_name
         use_copy, copy_name, file_name = values.get('use_copy'), values.get('copy_name'), values.get('file_name')
         if use_copy and copy_name:
             if len(copy_name) != len(file_name):
-                raise ValueError('copy_name not the same lenght as file_name')
+                raise ValueError('copy_name not the same length as file_name')
 
         # if use_archive true, archive_name should be null or same len as source_name
         use_archive, archive_name, file_name = values.get('use_archive'), values.get('archive_name'), values.get('file_name')
