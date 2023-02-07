@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from pm_watch.helper.common import JobConfigType
-from pm_watch.helper import io_helper
+from pm_watch.helper import file_util
 
 
 class ConfigBase(ABC):
@@ -19,7 +19,7 @@ class YmlConfig(ConfigBase):
     # overriding abstract method
     def get_config_dict(self) -> dict:
         # read yaml file into dictionary
-        return io_helper.read_yml_config(self.job_name)
+        return file_util.read_yml_config(self.job_name)
 
 
 class CsvConfig(ConfigBase):
