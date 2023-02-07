@@ -1,9 +1,10 @@
 from pydantic import BaseModel, validator, ValidationError, root_validator
 
+import logging
 from typing import Optional, List
 
-from pm_watch.core import file_name_helper
-from pm_watch.helper.common import PathType
+from pm_watch.core import config_parser
+from pm_watch.helper.common import PathType, JobConfigType
 
 
 def list_has_dups(my_list: list) -> bool:
@@ -35,13 +36,22 @@ class ValidJobConfig(BaseModel):
     use_archive: Optional[bool]
     archive_name: Optional[List[str]]
     archive_path: str = False
+    offset_days: Optional[int]
+    offset_hours: Optional[int]
 
     # derived fields must be after base fields
-    source_path_type: PathType = None
+    job_name: str = None
+    effective_source_path_type: PathType = None
+    effective_copy_path_type: PathType = None
+    effective_archive_path_type: PathType = None
     effective_file_name: List[str] = None
+    effective_job_config_type: JobConfigType = None
 
     @validator('file_count')
+    @classmethod
     def validate_file_count(cls, value, values):
+        """ number of files to be expected """
+
         if 'file_name' in values and value < len(values['file_name']):
             raise ValueError(
                 'value must be greater of equal than len of file_name list'
@@ -49,12 +59,38 @@ class ValidJobConfig(BaseModel):
         return value
 
     @validator('sleep_time', 'look_time', 'exclude_age')
+    @classmethod
     def validate_not_less_than_one(cls, value):
+        """ these attributes won't accept a zero or negative value """
+
         if value < 1:
             raise ValueError('value must be greater or equal than 1')
         return value
 
+    @validator('copy_path', always=True)
+    @classmethod
+    def validate_copy_path(cls, value, values):
+        """ these copy_path is required if use_copy is true """
+
+        if 'use_copy' in values and values['use_copy'] and value is None:
+            raise ValueError(
+                'copy_path is required if use_copy is true'
+            )
+        return value
+
+    @validator('archive_path', always=True)
+    @classmethod
+    def validate_archive_path(cls, value, values):
+        """ these archive_path is required if use_archive is true """
+
+        if 'archive_path' in values and values['archive_path'] and value is None:
+            raise ValueError(
+                'archive_path is required if use_archive is true'
+            )
+        return value
+
     @root_validator
+    @classmethod
     def validate_no_dup_source_path(cls, values):
         """ business logic validation """
 
@@ -76,14 +112,68 @@ class ValidJobConfig(BaseModel):
                 raise ValueError('archive_name not the same length as file_name')
         return values
 
-    @validator('source_path_type', always=True)
-    def validate_source_path_type(cls, value, values, **kwargs):
+    @validator('effective_source_path_type', always=True)
+    @classmethod
+    def validate_effective_source_path_type(cls, value, values, **kwargs):
+        """ parse path_type, this validator is required for derived fields """
+
+        print('source_path' in values)
         source_path = values['source_path']
-        if source_path.lower().startswith('s3://'):
-            return 'S3'
-        else:
-            return 'Not S3'
+        print(f'source_path: {source_path}')
+        # no need to check None as it's checked in source_path validator
+        return config_parser.validate_path_type(source_path)
+
+    @validator('effective_copy_path_type', always=True)
+    @classmethod
+    def validate_effective_copy_path_type(cls, value, values, **kwargs):
+        """ parse path_type, this validator is required for derived fields """
+
+        copy_path = values['copy_path']
+        # no need to check None as it's checked in copy_path validator
+        return config_parser.validate_path_type(copy_path)
+
+    @validator('effective_archive_path_type', always=True)
+    @classmethod
+    def validate_effective_archive_path_type(cls, value, values, **kwargs):
+        """ parse path_type, this validator is required for derived fields """
+
+        copy_path = values['copy_path']
+        # no need to check None as it's checked in archive_path validator
+        return config_parser.validate_path_type(copy_path)
 
     @validator('effective_file_name', always=True)
+    @classmethod
     def validate_effective_file_name(cls, value, values, **kwargs):
-        return [file_name_helper.parse_file_name(item) for item in values['file_name']]
+        """ parse list of file_name with date token and date format in it 
+            return values will be saved in effective_file_name 
+        """
+        offset_days = values['offset_days']
+        offset_hours = values['offset_hours']
+        return [config_parser.parse_file_name(item, offset_days, offset_hours) for item in values['file_name']]
+
+    def print_log(self):
+        log = logging.getLogger()
+        log.info('<< Job Config Variables >>')
+        log.info(f'{"app_id"} : {self.app_id }')
+        log.info(f'{"description"} : {self.description }')
+        log.info(f'{"file_name"} : {self.file_name }')
+        log.info(f'{"file_count"} : {self.file_count }')
+        log.info(f'{"source_path"} : {self.source_path }')
+        log.info(f'{"sleep_time"} : {self.sleep_time }')
+        log.info(f'{"look_time"} : {self.look_time }')
+        log.info(f'{"min_size"} : {self.min_size }')
+        log.info(f'{"exclude_age"} : {self.exclude_age }')
+        log.info(f'{"use_copy"} : {self.use_copy }')
+        log.info(f'{"copy_name"} : {self.copy_name }')
+        log.info(f'{"copy_path"} : {self.copy_path }')
+        log.info(f'{"use_archive"} : {self.use_archive }')
+        log.info(f'{"archive_name"} : {self.archive_name }')
+        log.info(f'{"archive_path"} : {self.archive_path }')
+        log.info(f'{"offset_days"} : {self.offset_days }')
+        log.info(f'{"offset_hours"} : {self.offset_hours }')
+        log.info('<< Resolved Variables >>')
+        log.info(f'{"effective_source_path_type"} : {self.effective_source_path_type }')
+        log.info(f'{"effective_copy_path_type"} : {self.effective_copy_path_type }')
+        log.info(f'{"effective_archive_path_type"} : {self.effective_archive_path_type }')
+        log.info(f'{"effective_file_name"} : {self.effective_file_name }')
+        log.info(f'{"effective_job_config_type"} : {self.effective_job_config_type }')

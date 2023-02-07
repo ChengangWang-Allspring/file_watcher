@@ -1,11 +1,9 @@
-from pm_watch import run
+from pm_watch import app
 
 
 def main():
-    run.main()
+    app.run()
 
-
-pass
 
 if __name__ == '__main__':
     main()

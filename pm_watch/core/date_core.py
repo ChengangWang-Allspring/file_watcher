@@ -3,6 +3,7 @@ from datetime import date
 from datetime import timedelta
 import holidays
 
+
 DEFAULT_DATE_TOKEN = 'today'
 DEFAULT_DATE_FORMAT = 'yyyyMMdd'
 
@@ -56,20 +57,42 @@ def cnv_csharp_date_fmt(in_fmt):
     return ofmt
 
 
-def today(fmt: str) -> str:
-    """ today  """
-    return date.today().strftime(fmt)
-
-
-def today_pm(fmt: str) -> str:
-    """ legacy token if hour before 20:00 use yesterday's date  
-    use constant TODAY_PM_OFFSET_HOURS = -20
+def offset(my_date: datetime, offset_days: int = None, offset_hours: int = None) -> datetime:
+    """ apply days or hours offset logic.  Examples:
+        offset_days = -1, offset 1 day back
+        offset_hours = -20, offset 20 hours back
     """
-    my_date = datetime.now() + timedelta(hours=TODAY_PM_OFFSET_HOURS)
+    if offset_days != None and offset_days != 0:
+        my_date += timedelta(days=offset_days)
+
+    if offset_hours != None and offset_hours != 0:
+        my_date += timedelta(hours=offset_hours)
+
+    return my_date
+
+
+def today(fmt: str, offset_days: int = None, offset_hours: int = None) -> str:
+    """ today  """
+    return offset(date.today(), offset_days, offset_hours).strftime(fmt)
+
+
+def today_pm(fmt: str, offset_days: int = None, offset_hours: int = None) -> str:
+    """ legacy token if hour before 20:00 use yesterday's date 
+        default offset hours is -20. Recommends to leave offset_days and 
+        offset_hours empty. 
+    """
+    if offset_hours == None or offset_hours == 0:
+        my_date = datetime.now() + timedelta(hours=TODAY_PM_OFFSET_HOURS)
+    else:
+        my_date = datetime.now() + timedelta(hours=offset_hours)
+
+    if offset_days != None and offset_days != 0:
+        my_date += timedelta(days=offset_days)
+
     return my_date.strftime(fmt)
 
 
-def lastwday(fmt: str) -> str:
+def lastwday(fmt: str, offset_days: int = None, offset_hours: int = None) -> str:
     """ last week day using weekday() function """
 
     today = date.today()
@@ -81,17 +104,17 @@ def lastwday(fmt: str) -> str:
         diff = 1
     # subtracting diff
     my_date = today - timedelta(days=diff)
-    return my_date.strftime(fmt)
+    return offset(my_date, offset_days, offset_hours).strftime(fmt)
 
 
-def lastday(fmt: str) -> str:
+def lastday(fmt: str, offset_days: int = None, offset_hours: int = None) -> str:
     """ yesterday """
 
     my_date = datetime.now() + timedelta(days=-1)
-    return my_date.strftime(fmt)
+    return offset(my_date, offset_days, offset_hours).strftime(fmt)
 
 
-def lastbday(fmt: str) -> str:
+def lastbday(fmt: str, offset_days: int = None, offset_hours: int = None) -> str:
     """ last business day excluding observed US holiday """
 
     today = date.today()
@@ -100,10 +123,10 @@ def lastbday(fmt: str) -> str:
     us_holidays = holidays.UnitedStates()
     while my_date in us_holidays or my_date.weekday() >= 5:
         my_date = my_date + timedelta(days=-1)
-    return my_date.strftime(fmt)
+    return offset(my_date, offset_days, offset_hours).strftime(fmt)
 
 
-def lbdom(fmt: str) -> str:
+def lbdom(fmt: str, offset_days: int = None, offset_hours: int = None) -> str:
     """ last business day of previous month excluding observed US Holiday """
 
     today = date.today()
@@ -113,16 +136,16 @@ def lbdom(fmt: str) -> str:
     while my_date in us_holidays or my_date.weekday() >= 5:
         my_date = my_date + timedelta(days=-1)
 
-    return my_date.strftime(fmt)
+    return offset(my_date, offset_days, offset_hours).strftime(fmt)
 
 
-def ldom(fmt: str) -> str:
+def ldom(fmt: str, offset_days: int = None, offset_hours: int = None) -> str:
     """ last day of previous month """
 
     today = date.today()
     first = today.replace(day=1)
     my_date = first - timedelta(days=1)
-    return my_date.strftime(fmt)
+    return offset(my_date, offset_days, offset_hours).strftime(fmt)
 
 
 # Date Token to func() mapping
@@ -143,11 +166,11 @@ def str_now() -> str:
     return datetime.now().strftime('%c')
 
 
-def parse_date_token(token: str, dt_fmt: str) -> str:
+def parse_date_token(token: str, dt_fmt: str, offset_days: int = None, offset_hours: int = None) -> str:
     """ parse date token and output formatted date string """
 
     ofmt = cnv_csharp_date_fmt(dt_fmt)
     if token in DATE_TOKEN_DICT.keys():
-        return DATE_TOKEN_DICT[token](ofmt)
+        return DATE_TOKEN_DICT[token](ofmt, offset_days, offset_hours)
     else:
         raise SyntaxError(f'date token or format error: {token}:{dt_fmt} ')

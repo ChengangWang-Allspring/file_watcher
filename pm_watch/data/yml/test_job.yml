@@ -2,7 +2,7 @@
 app_id: AGTPS
 description: file watcher For APX account file, produced by Everstage, arrive early in the morning
 # Required setting for watch file
-file_name: [RIC_APX_Holdings_TODAY.dat, RIC_APX_Accounts_TODAY.dat]
+file_name: ["RIC_APX_Holdings_{yyyyMMdd}.dat", "RIC_APX_Accounts_{yyyyMMdd}.dat"]
 file_count: 2
 source_path: C:\cwang\Apps\AGTPS\theWarehouse_Import\inbound
 sleep_time: 5
@@ -18,3 +18,7 @@ copy_path: C:\cwang\abcde
 use_archive: true
 archive_name: 
 archive_path: C:\cwang\
+# Optional offset
+offset_days:  null
+offset_hours: null
+

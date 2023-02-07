@@ -6,19 +6,18 @@ import fnmatch
 import time
 import os
 
-from pm_watch.helper.common import Setting
-from pm_watch.helper.common import PathType
-from pm_watch.helper import file_util
+from pm_watch.helper.common import PathType, JobConfigError
+from pm_watch.helper import file_helper
 from pm_watch.core.config_core import ValidJobConfig
+from pm_watch.stage import config_helper
 
 
 def perform_watch() -> list:
     """ File Watch primary while loop Logic """
 
-    log.info('<<< Watching file ... >>>')
-
-    config: ValidJobConfig = Setting.config
     log = logging.getLogger()
+    log.info('<<< Watching file ... >>>')
+    config = config_helper.config
     log.info(
         f"<<< Looking for file(s) ({config.effective_file_name}) from ({config.source_path}) >>>"
     )
@@ -56,18 +55,20 @@ def perform_watch() -> list:
 def get_files() -> list:
     """ get filename list based on source path type"""
 
-    config = Setting.config
+    config = config_helper.config
     log = logging.getLogger()
-    if config.source_path_type == PathType.S3_PATH:
+    if config.effective_source_path_type == PathType.S3_PATH:
         # list files from s3 bucket
         log.debug("Preparing to get files from s3 bucket ... ")
-        bucket, prefix = file_util.get_s3_bucket_prefix_by_uri(config.source_path)
-        files = file_util.get_files_on_s3(bucket, prefix)
+        bucket, prefix = file_helper.get_s3_bucket_prefix_by_uri(config.source_path)
+        files = file_helper.get_files_on_s3(bucket, prefix)
         return files
-    else:
+    elif config.effective_source_path_type == PathType.LOCAL_PATH or config.effective_source_path_type == PathType.UNC_PATH:
         # list files on local path or UNC path
         log.debug("Preparing to get files from source path  ... ")
         return os.listdir(config.source_path)
+    else:
+        raise JobConfigError('effective_source_path_type is not derived')
 
 
 def peform_copy(file_list: list):

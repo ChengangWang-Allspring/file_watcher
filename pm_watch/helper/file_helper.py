@@ -2,13 +2,9 @@ import boto3
 import botocore.exceptions
 import yaml
 
-
 import logging
-from pathlib import Path
-from datetime import datetime
 
 from pm_watch.helper import common
-from pm_watch.helper.common import Setting
 
 
 def read_csv_config(job_name: str) -> dict:

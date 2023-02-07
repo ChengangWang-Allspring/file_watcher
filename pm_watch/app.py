@@ -9,7 +9,7 @@ from pm_watch.stage import action
 from pm_watch.helper.common import Setting
 
 
-def main():
+def run():
 
     try:
         # parse arguments
@@ -55,4 +55,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    run()
