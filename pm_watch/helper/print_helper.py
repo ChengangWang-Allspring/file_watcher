@@ -1,7 +1,7 @@
 import logging
 
-from file_watch.core.config_core import ValidJobConfig
-from file_watch.helper.common import Setting
+from pm_watch.core.config_core import ValidJobConfig
+from pm_watch.helper.common import Setting
 
 
 def print_settings():

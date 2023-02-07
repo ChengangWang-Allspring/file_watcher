@@ -4,9 +4,9 @@ import logging
 import logging.config
 
 
-from file_watch.service import prepare
-from file_watch.service import stage
-from file_watch.helper.common import Setting
+from pm_watch.stage import prepare
+from pm_watch.stage import action
+from pm_watch.helper.common import Setting
 
 
 def main():
@@ -22,8 +22,9 @@ def main():
         prepare.load_job_config()
 
         # perform watch
-        stage.perform_watch()
+        files = action.perform_watch()
 
+        return
         if config.copy_file:
             log.info('<<< Copying file ... >>>')
             if len(file_list) > 0:
@@ -38,13 +39,10 @@ def main():
         log.info('EXIT 0')
 
     except Exception as ex:
-        print(ex)
-        if log:
-            log.error('<<<<< Error caught in file_watcher main() >>>>>')
-            log.error(ex)
-            log.error(traceback.format_exc())
-        else:
-            traceback.print_exc()
+        log = logging.getLogger()
+        log.error('<<<<< Error caught in file_watcher main() >>>>>')
+        log.error(ex)
+        log.error(traceback.format_exc())
         sys.exit(875)
 
     else:

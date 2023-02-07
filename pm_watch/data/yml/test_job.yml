@@ -1,7 +1,6 @@
 # Require job setting
 app_id: AGTPS
-job_description: file watcher For APX account file, produced by Everstage, arrive early in the morning
-use_holiday: true
+description: file watcher For APX account file, produced by Everstage, arrive early in the morning
 # Required setting for watch file
 file_name: [RIC_APX_Holdings_TODAY.dat, RIC_APX_Accounts_TODAY.dat]
 file_count: 2

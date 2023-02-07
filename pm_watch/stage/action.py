@@ -6,27 +6,29 @@ import fnmatch
 import time
 import os
 
+from pm_watch.helper.common import Setting
+from pm_watch.helper.common import PathType
+from pm_watch.helper import file_util
+from pm_watch.core.config_core import ValidJobConfig
+
 
 def perform_watch() -> list:
     """ File Watch primary while loop Logic """
 
-    file_list = []
     log.info('<<< Watching file ... >>>')
-    file_list = perform_watch()
 
-    config = ConfigManager.get_config()
+    config: ValidJobConfig = Setting.config
     log = logging.getLogger()
     log.info(
-        f"<<< Looking for file(s) ({config.file_name}) from ({config.source_path}) >>>"
+        f"<<< Looking for file(s) ({config.effective_file_name}) from ({config.source_path}) >>>"
     )
-    file_count: int = 0
     poll_attempt: int = 0
     while True:
         poll_attempt += 1
         files = get_files()
         match = []
         if len(files) > 0:
-            for filename in config.file_name:
+            for filename in config.effective_file_name:
                 log.debug(f"checking {filename}")
                 match += fnmatch.filter(files, filename)
         # remove duplicate from the list
@@ -48,27 +50,24 @@ def perform_watch() -> list:
                 log.error(
                     f"No File (or Not Enough Files [ 0 out of {config.file_count} ]) were Found in the requested amount of times."
                 )
-                raise FileWatchTimeOutError("Maximum polling times reached!")
+                raise TimeoutError("Maximum polling times reached!")
 
 
 def get_files() -> list:
-    # return filename list based on source type
+    """ get filename list based on source path type"""
 
-    config = ConfigManager.get_config()
+    config = Setting.config
     log = logging.getLogger()
-    if config.is_source_s3:
+    if config.source_path_type == PathType.S3_PATH:
         # list files from s3 bucket
         log.debug("Preparing to get files from s3 bucket ... ")
-        files = get_files_on_s3(config.source_s3_bucket,
-                                config.source_s3_prefix)
+        bucket, prefix = file_util.get_s3_bucket_prefix_by_uri(config.source_path)
+        files = file_util.get_files_on_s3(bucket, prefix)
         return files
-    elif config.source_path:
+    else:
         # list files on local path or UNC path
         log.debug("Preparing to get files from source path  ... ")
         return os.listdir(config.source_path)
-    else:
-        # this should be handled in JobConfig parse
-        raise JobConfigError("Cannot resolve source.")
 
 
 def peform_copy(file_list: list):

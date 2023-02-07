@@ -2,7 +2,7 @@ from enum import Enum, auto
 from pathlib import Path
 from datetime import datetime
 
-from file_watch.core.config_core import ValidJobConfig
+from pm_watch.core.config_core import ValidJobConfig
 
 
 class Constant:

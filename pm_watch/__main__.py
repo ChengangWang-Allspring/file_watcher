@@ -1,4 +1,4 @@
-from file_watch import run
+from pm_watch import run
 
 
 def main():

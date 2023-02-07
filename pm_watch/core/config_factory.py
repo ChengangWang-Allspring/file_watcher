@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
-from file_watch.helper.common import JobConfigType
-from file_watch.helper import io_helper
+from pm_watch.helper.common import JobConfigType
+from pm_watch.helper import io_helper
 
 
 class ConfigBase(ABC):

@@ -3,13 +3,13 @@ import yaml
 import argparse
 import logging
 
-from file_watch.helper.common import Setting, JobConfigType
-from file_watch.helper import constants
-from file_watch.helper import common
-from file_watch.core.config_factory import ConfigFactory
-from file_watch.core.config_core import ValidJobConfig
-from file_watch.helper import print_helper
-from file_watch.core import date_core
+from pm_watch.helper.common import Setting, JobConfigType
+from pm_watch.helper import constants
+from pm_watch.helper import common
+from pm_watch.core.config_factory import ConfigFactory
+from pm_watch.core.config_core import ValidJobConfig
+from pm_watch.helper import print_helper
+from pm_watch.core import date_core
 
 
 def parse_args():

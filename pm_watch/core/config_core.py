@@ -1,6 +1,9 @@
 from pydantic import BaseModel, validator, ValidationError, root_validator
+
 from typing import Optional, List
-from file_watch.core import file_name_helper
+
+from pm_watch.core import file_name_helper
+from pm_watch.helper.common import PathType
 
 
 def list_has_dups(my_list: list) -> bool:
@@ -19,7 +22,6 @@ class ValidJobConfig(BaseModel):
 
     app_id: str
     description: Optional[str]
-    use_holiday: bool = True
     file_name: List[str]
     file_count: int
     source_path: str
@@ -35,8 +37,8 @@ class ValidJobConfig(BaseModel):
     archive_path: str = False
 
     # derived fields must be after base fields
-    source_path_type: str = None
-    effective_file_name: str = None
+    source_path_type: PathType = None
+    effective_file_name: List[str] = None
 
     @validator('file_count')
     def validate_file_count(cls, value, values):
