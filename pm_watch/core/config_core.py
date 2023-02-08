@@ -3,7 +3,7 @@ from pydantic import BaseModel, validator, ValidationError, root_validator
 import logging
 from typing import Optional, List
 
-from pm_watch.core import config_parser
+from pm_watch.core import core_helper
 from pm_watch.helper.common import PathType, JobConfigType
 
 
@@ -63,7 +63,7 @@ class ValidJobConfig(BaseModel):
     def validate_not_less_than_one(cls, value):
         """ these attributes won't accept a zero or negative value """
 
-        if value < 1:
+        if value != None and value < 1:
             raise ValueError('value must be greater or equal than 1')
         return value
 
@@ -117,12 +117,10 @@ class ValidJobConfig(BaseModel):
     def validate_effective_source_path_type(cls, value, values, **kwargs):
         """ parse path_type, this validator is required for derived fields """
 
-        print('source_path' in values)
         source_path = values['source_path']
-        print(f'source_path: {source_path}')
         # no need to check None as it's checked in source_path validator
         try:
-            result = config_parser.validate_path_type(source_path)
+            result = core_helper.validate_path_type(source_path)
             return result
         except Exception as ex:
             log = logging.getLogger()
@@ -138,7 +136,7 @@ class ValidJobConfig(BaseModel):
         copy_path = values['copy_path']
         if copy_path != None:
             try:
-                result = config_parser.validate_path_type(copy_path)
+                result = core_helper.validate_path_type(copy_path)
                 return result
             except Exception as ex:
                 log = logging.getLogger()
@@ -153,10 +151,9 @@ class ValidJobConfig(BaseModel):
         """ parse path_type, this validator is required for derived fields """
 
         archive_path = values['archive_path']
-        print(f'archive_path is: {archive_path}')
         if archive_path != None:
             try:
-                result = config_parser.validate_path_type(archive_path)
+                result = core_helper.validate_path_type(archive_path)
                 return result
             except Exception as ex:
                 log = logging.getLogger()
@@ -173,7 +170,7 @@ class ValidJobConfig(BaseModel):
         """
         offset_days = values['offset_days']
         offset_hours = values['offset_hours']
-        return [config_parser.parse_file_name(item, offset_days, offset_hours) for item in values['file_name']]
+        return [core_helper.parse_file_name(item, offset_days, offset_hours) for item in values['file_name']]
 
     def print_log(self):
         log = logging.getLogger()

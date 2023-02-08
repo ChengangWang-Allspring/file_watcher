@@ -2,13 +2,13 @@ import yaml
 
 import argparse
 import logging
+from datetime import datetime
 
 from pm_watch.helper import common
 from pm_watch.helper.common import Setting, JobConfigType, PathType, Constant
 from pm_watch.core.config_factory import ConfigFactory
 from pm_watch.core.config_core import ValidJobConfig
-from pm_watch.core import date_core
-from pm_watch.stage import config_helper
+from pm_watch.stage import config_cache
 
 
 def parse_args():
@@ -57,10 +57,9 @@ def load_job_config():
     log.info('Parsing job configuration ... ')
 
     Setting.job_config_path = common.get_yml_file_path(Setting.job_name)
-    Setting.job_config_type = JobConfigType.YML_CONFIG
-    config_dict: dict = ConfigFactory.get_config_dict(Setting.job_name, JobConfigType.YML_CONFIG)
+    config_dict: dict = ConfigFactory.get_config_dict(Setting.job_name, Setting.job_config_type)
 
-    config = config_helper.config = ValidJobConfig(**config_dict)
+    config = config_cache.config = ValidJobConfig(**config_dict)
     config.job_name = Setting.job_name
 
     log.info(f'Initializing file watcher ...')
@@ -68,8 +67,7 @@ def load_job_config():
     Setting.print_log()
 
     log.info('='*80)
-    log.info(
-        f'<<<<< File Watcher Job ({Setting.job_name}) -- Started at ( {date_core.str_now()} ) >>>>> '
-    )
+    now = datetime.now().strftime('%c')
+    log.info(f'<<<<< File Watcher Job ({Setting.job_name}) -- Started at ( {now} ) >>>>> ')
     log.info('='*80)
     config.print_log()

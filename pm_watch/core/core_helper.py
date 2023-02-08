@@ -1,8 +1,12 @@
+import pyodbc
+
 import re
+import logging
+import traceback
 
 from pm_watch.core import date_core
 from pm_watch.core.date_core import DATE_TOKEN_DICT
-from pm_watch.helper.common import Constant, PathType
+from pm_watch.helper.common import Constant, PathType, Setting, JobConfigError
 
 
 def parse_file_name(file_name: str, offset_days: int = None, offset_hours: int = None) -> str:
@@ -49,3 +53,42 @@ def validate_path_type(my_path: str) -> PathType:
         return PathType.LOCAL_PATH
     else:
         raise NotADirectoryError(f'not a valid path: {my_path}')
+
+
+def get_job_config_db(job_name: str) -> dict:
+
+    server = 'rds-tps-dev-instance.cl8casj4jvue.us-east-1.rds.amazonaws.com,1433'
+    database = 'tpsServices'
+    username = 'tpstest'
+    password = 'JB0t2oWpnRAf6pX'
+    table = 'pm_watch_job_config'
+    log = logging.getLogger()
+    log.info(f'Getting job config from database {database}.dbo.{table} ... ')
+    log.info(f'Opening SQL Server connection to {server} ... ')
+    conn = pyodbc.connect('Driver={SQL Server};Server='+server+';Database='+database+';UID='+username+';PWD=' + password)
+
+    try:
+        cursor = conn.cursor()
+        cursor.execute(f'select top 1 * from dbo.{table} where job_name = ?', job_name)
+        columns = [column[0] for column in cursor.description]
+        results = cursor.fetchall()
+        if len(results) == 0:
+            raise JobConfigError(f'job_name not found in {database}.dbo.{table} : {job_name}')
+        row = results[0]
+        my_dict: dict = dict(zip(columns, row))
+        # split file_name, copy_name, archive_name to list of file_names, so that pm_watch can handle multiple files
+        if isinstance(my_dict['file_name'], str):
+            my_dict['file_name'] = my_dict['file_name'].split(',')
+        if isinstance(my_dict['copy_name'], str):
+            my_dict['copy_name'] = my_dict['copy_name'].split(',')
+        if isinstance(my_dict['archive_name'], str):
+            my_dict['archive_name'] = my_dict['archive_name'].split(',')
+
+    except Exception as ex:
+        log.error(ex)
+        if Setting.debug:
+            log.error(traceback.format_exc())
+    finally:
+        conn.close()
+
+    return my_dict

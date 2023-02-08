@@ -2,6 +2,7 @@ import sys
 import traceback
 import logging
 import logging.config
+from datetime import datetime
 
 
 from pm_watch.stage import prepare
@@ -17,6 +18,7 @@ def run():
 
         # config logging
         prepare.config_logging()
+        log = logging.getLogger()
 
         # initialize job config along with logger
         prepare.load_job_config()
@@ -24,8 +26,11 @@ def run():
         # perform watch
         files = action.perform_watch()
 
-        return
-        if config.copy_file:
+        action.peform_copy(files)
+
+        action.perform_archive(files)
+
+        """         if config.copy_file:
             log.info('<<< Copying file ... >>>')
             if len(file_list) > 0:
                 peform_copy(file_list)
@@ -34,12 +39,9 @@ def run():
 
         if config.archive_file:
             log.info('<<< Archiving file ... >>>')
-            perform_archive()
-
-        log.info('EXIT 0')
+            perform_archive() """
 
     except Exception as ex:
-        log = logging.getLogger()
         log.error('<<<<< Error caught in file_watcher main() >>>>>')
         log.error(ex)
         if Setting.debug:
@@ -47,9 +49,9 @@ def run():
         sys.exit(875)
 
     else:
-        log.info(
-            f'<<<<< File Watcher Job ({args.job_name}) -- Completed Successfully at ( {str_now()} ) >>>>> '
-        )
+        now = datetime.now().strftime('%c')
+        log.info(f'<<<<< File Watcher Job ({Setting.job_name}) -- Completed Successfully at ( {now} ) >>>>> ')
+        log.info('EXIT 0')
 
     finally:
         pass

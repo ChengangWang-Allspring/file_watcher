@@ -1,10 +1,12 @@
 from abc import ABC, abstractmethod
 
-from pm_watch.helper.common import JobConfigType
+from pm_watch.helper.common import JobConfigType, JobConfigError
 from pm_watch.helper import file_helper
+from pm_watch.core import core_helper
 
 
 class ConfigBase(ABC):
+    """ abstract base config """
 
     def __init__(self, job_name: str):
         self.job_name = job_name
@@ -15,6 +17,7 @@ class ConfigBase(ABC):
 
 
 class YmlConfig(ConfigBase):
+    """ Yml config """
 
     # overriding abstract method
     def get_config_dict(self) -> dict:
@@ -23,19 +26,20 @@ class YmlConfig(ConfigBase):
 
 
 class CsvConfig(ConfigBase):
+    """ CSV Config """
 
     # overriding abstract method
     def get_config_dict(self) -> dict:
-        print(self.job_name)
-        print('get dict from csv file passing job_name, translate some fields into dict')
+        raise JobConfigError('CsvConfig not implemented in this release')
 
 
 class DbConfig(ConfigBase):
+    """ DB Config """
 
     # overriding abstract method
     def get_config_dict(self) -> dict:
-        print(self.job_name)
-        print('get dict from database passing job_name, translate into dict')
+        # get job config dictionary from datbase
+        return core_helper.get_job_config_db(self.job_name)
 
 
 class ConfigFactory:

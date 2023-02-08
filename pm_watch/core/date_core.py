@@ -160,12 +160,6 @@ DATE_TOKEN_DICT = {
 }
 
 
-def str_now() -> str:
-    """ print current date time string """
-
-    return datetime.now().strftime('%c')
-
-
 def parse_date_token(token: str, dt_fmt: str, offset_days: int = None, offset_hours: int = None) -> str:
     """ parse date token and output formatted date string """
 

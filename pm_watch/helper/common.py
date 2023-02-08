@@ -70,11 +70,16 @@ class PathType(Enum):
 
 
 class Setting:
+    """ store global settings, command arguments, etc """
+
+    # this is where we can switch to YML_Config or DB_Config (CSV_config TBD)
+    # Effective JobConfigType
+    job_config_type: JobConfigType = JobConfigType.DB_CONFIG
+
     debug: bool = False
     job_name: str = None
     log_file_path: str = None
     job_config_path: str = None
-    job_config_type: JobConfigType = None
 
     @classmethod
     def print_log(cls):
