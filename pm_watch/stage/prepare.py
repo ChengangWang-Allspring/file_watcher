@@ -23,7 +23,9 @@ def parse_args():
 
     parser = argparse.ArgumentParser(description='File_watch runner for Autotys jobs')
     parser.add_argument('job_name', help='job_name for file watcher to run ')
-    parser.add_argument('-d', '--debug', dest='debug', action='store_true', help='force debug level log message')
+    parser.add_argument(
+        '-d', '--debug', dest='debug', action='store_true', help='force debug level log message'
+    )
 
     args = parser.parse_args()
     Setting.job_name = args.job_name
@@ -31,7 +33,7 @@ def parse_args():
 
 
 def config_logging():
-    """ configure logging """
+    """configure logging"""
 
     print('Configuring logger ...')
     log_config = yaml.safe_load(Constant.LOGGING_YML)
@@ -51,7 +53,7 @@ def config_logging():
 
 
 def load_job_config():
-    """ load job config, if validated, print all job variables """
+    """load job config, if validated, print all job variables"""
 
     log = logging.getLogger()
     log.info('Parsing job configuration ... ')
@@ -66,8 +68,8 @@ def load_job_config():
 
     Setting.print_log()
 
-    log.info('='*80)
+    log.info('=' * 80)
     now = datetime.now().strftime('%c')
     log.info(f'<<<<< File Watcher Job ({Setting.job_name}) -- Started at ( {now} ) >>>>> ')
-    log.info('='*80)
-    config.print_log()
+    log.info('=' * 80)
+    config.print_all_variables()

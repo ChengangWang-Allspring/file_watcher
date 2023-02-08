@@ -2,6 +2,7 @@ use tpsServices
 GO
 
 DELETE FROM pm_watch_job_config WHERE app_id='TEST'
+SELECT * FROM pm_watch_job_config WHERE app_id='TEST'
 
 -- test_1: Test local path, single file
 insert pm_watch_job_config (job_name, app_id, job_description, file_names, file_count, source_path, sleep_time,look_time)
@@ -9,7 +10,7 @@ values ('test_1','TEST','Test local path, single file', 'RIC_APX_Holdings_{yyyyM
 
 -- test_2: Test UNC path, single file
 insert pm_watch_job_config (job_name, app_id, job_description, file_names, file_count, source_path, sleep_time,look_time)
-values ('test_2','TEST',' Test UNC path, single file', 'RIC_APX_Holdings_{yyyyMMdd}.dat', 1, '\\10.24.38.59\Deployments\test_inbound', 5,20 )
+values ('test_2','TEST','Test UNC path, single file', 'RIC_APX_Holdings_{yyyyMMdd}.dat', 1, '\\10.24.38.59\Deployments\test_inbound', 5,20 )
 
 -- test_3: Test S3 path, single file  
 insert pm_watch_job_config (job_name, app_id, job_description, file_names, file_count, source_path, sleep_time,look_time)
@@ -41,5 +42,18 @@ values ('test_8','TEST','Test error: missing app_id, file_names', '', 0, 'C:\cwa
 insert pm_watch_job_config (job_name, app_id, job_description, file_names, file_count, source_path, sleep_time,look_time)
 values ('test_9','TEST','Test date tokens & formats', 'a_{yyyyMMdd}.txt,b_{today}.txt,c_{today:yyyyMMdd}.txt,d_{today_pm:yyMMdd}.txt,e_{lastwday:yyyy_MM_dd}.txt,f_{lastday:MM-dd-yyyy}.txt,g_{lastbday:yyyyMMdd}.txt,h_{lbdom:MM-dd-yyyy}.txt,i_{ldom:MM_dd_yyyy}.txt', 100, 'C:\cwang\Apps\inbound', 5,10 )
 
-SELECT * FROM pm_watch_job_config WHERE app_id='TEST'
+
+-- test_10: Test if copy_path is valid
+insert pm_watch_job_config (job_name, app_id, job_description, file_names, file_count, source_path, sleep_time,look_time, use_copy, copy_path)
+values ('test_10','TEST','Test error invalid copy_path when use_copy', 'RIC_APX_*_{yyyyMMdd}.dat', 1, 'C:\cwang\Apps\inbound', 5,20, 1, 'adsfadsf' )
+
+
+-- test_11 Test copy_files local to local
+insert pm_watch_job_config (job_name, app_id, job_description, file_names, file_count, source_path, sleep_time,look_time, use_copy, copy_path)
+values ('test_11','TEST','Test copy_files local to local', 'RIC_APX_*_{yyyyMMdd}.dat', 1, 'C:\cwang\Apps\source_location', 5,20, 1, 'C:\cwang\Apps\inbound' )
+
+-- test_12 Test archive_files local to local
+insert pm_watch_job_config (job_name, app_id, job_description, file_names, file_count, source_path, sleep_time,look_time, use_copy, copy_path, use_archive, archive_path)
+values ('test_12','TEST','Test copy_files local to local', 'RIC_APX_*_{yyyyMMdd}.dat', 5, 'C:\cwang\Apps\source_location', 5,20, 1, 'C:\cwang\Apps\inbound',1,'C:\cwang\Apps\archive' )
+
 

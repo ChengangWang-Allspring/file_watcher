@@ -81,7 +81,7 @@ def get_job_config_db(job_name: str) -> dict:
         columns = [column[0] for column in cursor.description]
         results = cursor.fetchall()
         if len(results) == 0:
-            raise JobConfigError(f'job_name not found in {database}.dbo.{table} : {job_name}')
+            raise JobConfigError(f'job_name not found in table {database}.dbo.{table} : {job_name}')
         row = results[0]
         my_dict: dict = dict(zip(columns, row))
         # split file_name, copy_name, archive_name to list of file_names, so that pm_watch can handle multiple files
@@ -96,6 +96,7 @@ def get_job_config_db(job_name: str) -> dict:
         log.error(ex)
         if Setting.debug:
             log.error(traceback.format_exc())
+        raise ex
     finally:
         conn.close()
 

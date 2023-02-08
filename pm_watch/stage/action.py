@@ -22,17 +22,17 @@ def perform_watch() -> list:
         f'<<< Looking for file(s) ({config.effective_file_names}) from ({config.source_path}) >>>'
     )
     poll_attempt: int = 0
-    while True:
+    while True:  # keep looking for until reaching max look_time
         poll_attempt += 1
-        files = get_files()
+        files = file_helper.get_files(config)  # get files from either local, UNC or S3 URI
         match = []
         if len(files) > 0:
             for filename in config.effective_file_names:
                 log.debug(f'checking {filename}')
-                match += fnmatch.filter(files, filename)
+                match += fnmatch.filter(files, filename)  # use Python fnmatch to filter by filename
         # remove duplicate from the list
         if len(match) > 0:
-            match = [*set(match)]
+            match = [*set(match)]  # remove posible duplicate by converting set
 
         if len(match) >= config.file_count:
             log.info('=' * 80)
@@ -54,35 +54,35 @@ def perform_watch() -> list:
                 raise TimeoutError('Maximum polling times reached!')
 
 
-def get_files() -> list:
-    """get filename list based on source path type"""
+def may_peform_copy(file_list: list):
+    """copy files from effective source to effective target location"""
 
     config = config_cache.config
-    log = logging.getLogger()
-    if config.effective_source_path_type == PathType.S3_PATH:
-        # list files from s3 bucket
-        log.debug('Preparing to get files from s3 bucket ... ')
-        bucket, prefix = file_helper.get_s3_bucket_prefix_by_uri(config.source_path)
-        files = file_helper.get_files_on_s3(bucket, prefix)
-        return files
-    elif (
-        config.effective_source_path_type == PathType.LOCAL_PATH
-        or config.effective_source_path_type == PathType.UNC_PATH
-    ):
-        # list files on local path or UNC path
-        log.debug('Preparing to get files from source path  ... ')
-        return os.listdir(config.source_path)
-    else:
-        raise JobConfigError('effective_source_path_type is not derived')
+
+    if config.use_copy:
+        log = logging.getLogger()
+        log.info('<<< Copying file ... >>>')
+        log.info(f'{"source_path"} : {config.source_path }')
+        log.info(f'{"copy_path"} : {config.copy_path }')
+        log.info(f'{"effective_file_names"} : {config.effective_file_names }')
+        log.info(f'Files found by file_watch at source_path: {file_list}')
+        file_helper.copy_files(config, file_list)
+        log.info('=' * 80)
 
 
-def peform_copy(file_list: list):
-    # copy files from effective source to effective target location
+def may_perform_archive(file_list: list):
+    """archive files from effective source to effective archive location"""
 
-    pass
+    config = config_cache.config
 
-
-def perform_archive(file_list: list):
-    # archive files from effective source to effective archive location
+    if config.use_archive:
+        log = logging.getLogger()
+        log.info('<<< Archiving file ... >>>')
+        log.info(f'{"source_path"} : {config.source_path }')
+        log.info(f'{"archive_path"} : {config.archive_path }')
+        log.info(f'{"effective_file_names"} : {config.effective_file_names }')
+        log.info(f'Files found by file_watch at source_path: {file_list}')
+        file_helper.archive_files(config, file_list)
+        log.info('=' * 80)
 
     pass

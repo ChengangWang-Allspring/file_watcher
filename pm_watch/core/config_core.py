@@ -213,7 +213,7 @@ class ValidJobConfig(BaseModel):
             raise JobConfigError('cannot derive effective_file_names from file_names')
         return eff_file_names
 
-    def print_log(self):
+    def print_all_variables(self):
         log = logging.getLogger()
         log.info('<< Job Config Variables >>')
         log.info(f'{"app_id"} : {self.app_id }')

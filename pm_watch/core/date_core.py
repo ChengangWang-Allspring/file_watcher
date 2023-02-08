@@ -152,7 +152,6 @@ def lastbday(fmt: str, offset_days: int = None, offset_hours: int = None) -> str
 def lbdom(fmt: str, offset_days: int = None, offset_hours: int = None) -> str:
     """last business day of previous month excluding observed US Holiday"""
 
-    print(f'*************** fmt = {fmt}')
     today = date.today()
     first = today.replace(day=1)
     my_date = first - timedelta(days=1)

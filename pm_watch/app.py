@@ -22,23 +22,14 @@ def run():
         # initialize job config along with logger
         prepare.load_job_config()
 
-        # perform watch
+        # must perform watch
         files = action.perform_watch()
 
-        action.peform_copy(files)
+        # may perform copy
+        action.may_peform_copy(files)
 
-        action.perform_archive(files)
-
-        """         if config.copy_file:
-            log.info('<<< Copying file ... >>>')
-            if len(file_list) > 0:
-                peform_copy(file_list)
-            else:
-                raise FileWatchError('Unexpected empty file_list')
-
-        if config.archive_file:
-            log.info('<<< Archiving file ... >>>')
-            perform_archive() """
+        # may perform archive
+        action.may_perform_archive(files)
 
     except Exception as ex:
         log.error('<<<<< Error caught in file_watcher main() >>>>>')
