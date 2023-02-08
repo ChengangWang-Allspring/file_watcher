@@ -33,9 +33,9 @@ class ValidJobConfig(BaseModel):
     use_copy: Optional[bool] = False
     copy_name: Optional[List[str]]
     copy_path: Optional[str]
-    use_archive: Optional[bool]
+    use_archive: Optional[bool] = False
     archive_name: Optional[List[str]]
-    archive_path: str = False
+    archive_path: Optional[str]
     offset_days: Optional[int]
     offset_hours: Optional[int]
 
@@ -121,7 +121,14 @@ class ValidJobConfig(BaseModel):
         source_path = values['source_path']
         print(f'source_path: {source_path}')
         # no need to check None as it's checked in source_path validator
-        return config_parser.validate_path_type(source_path)
+        try:
+            result = config_parser.validate_path_type(source_path)
+            return result
+        except Exception as ex:
+            log = logging.getLogger()
+            log.error('Exception caught in effective_source_path_type')
+
+        return None
 
     @validator('effective_copy_path_type', always=True)
     @classmethod
@@ -129,17 +136,34 @@ class ValidJobConfig(BaseModel):
         """ parse path_type, this validator is required for derived fields """
 
         copy_path = values['copy_path']
-        # no need to check None as it's checked in copy_path validator
-        return config_parser.validate_path_type(copy_path)
+        if copy_path != None:
+            try:
+                result = config_parser.validate_path_type(copy_path)
+                return result
+            except Exception as ex:
+                log = logging.getLogger()
+                log.error('Excetion caught in effective_copy_path_type')
+                raise ex
+        else:
+            return None
 
     @validator('effective_archive_path_type', always=True)
     @classmethod
     def validate_effective_archive_path_type(cls, value, values, **kwargs):
         """ parse path_type, this validator is required for derived fields """
 
-        copy_path = values['copy_path']
-        # no need to check None as it's checked in archive_path validator
-        return config_parser.validate_path_type(copy_path)
+        archive_path = values['archive_path']
+        print(f'archive_path is: {archive_path}')
+        if archive_path != None:
+            try:
+                result = config_parser.validate_path_type(archive_path)
+                return result
+            except Exception as ex:
+                log = logging.getLogger()
+                log.error('Exception caught in effective_archive_path_type')
+                raise ex
+        else:
+            return None
 
     @validator('effective_file_name', always=True)
     @classmethod

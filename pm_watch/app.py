@@ -42,7 +42,8 @@ def run():
         log = logging.getLogger()
         log.error('<<<<< Error caught in file_watcher main() >>>>>')
         log.error(ex)
-        log.error(traceback.format_exc())
+        if Setting.debug:
+            log.error(traceback.format_exc())
         sys.exit(875)
 
     else:

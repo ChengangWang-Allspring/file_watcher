@@ -31,8 +31,7 @@ def parse_file_name(file_name: str, offset_days: int = None, offset_hours: int =
 
     # get date string by token and format
     parsed_date_str = date_core.parse_date_token(date_token, date_fmt, offset_days, offset_hours)
-    print(f'parsed_date_str: {parsed_date_str}')
-    return file_name.replace('{'+token+'}', parsed_date_str)
+    return file_name.replace('{'+token[0]+'}', parsed_date_str)
 
 
 def validate_path_type(my_path: str) -> PathType:
