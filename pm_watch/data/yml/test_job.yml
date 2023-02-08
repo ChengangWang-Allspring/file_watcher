@@ -1,5 +1,5 @@
 app_id: AGTPS
-file_name: ["RIC_APX_Holdings_{today_pm:yyyyMMdd}.dat", "RIC_APX_Accounts_{yyyyMMdd}.dat"]
+file_names: ["RIC_APX_Holdings_{today_pm:yyyyMMdd}.dat", "RIC_APX_Accounts_{yyyyMMdd}.dat"]
 file_count: 2
 source_path: C:\cwang\Apps\AGTPS\theWarehouse_Import\inbound
 sleep_time: 5

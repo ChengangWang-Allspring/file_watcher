@@ -11,7 +11,6 @@ from pm_watch.helper.common import Setting
 
 
 def run():
-
     try:
         # parse arguments
         prepare.parse_args()
@@ -43,6 +42,7 @@ def run():
 
     except Exception as ex:
         log.error('<<<<< Error caught in file_watcher main() >>>>>')
+        log.error(type(ex).__name__)
         log.error(ex)
         if Setting.debug:
             log.error(traceback.format_exc())
@@ -50,7 +50,9 @@ def run():
 
     else:
         now = datetime.now().strftime('%c')
-        log.info(f'<<<<< File Watcher Job ({Setting.job_name}) -- Completed Successfully at ( {now} ) >>>>> ')
+        log.info(
+            f'<<<<< File Watcher Job ({Setting.job_name}) -- Completed Successfully at ( {now} ) >>>>> '
+        )
         log.info('EXIT 0')
 
     finally:

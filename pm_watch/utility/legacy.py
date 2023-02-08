@@ -5,12 +5,12 @@ _format_dict = {
     '$objPDate.priorwday': 'priorwday:',
     'lbdom -1 yyyyMMdd y WFAM': 'lbdom:yyyyMMdd',
     'dayoffset -1 yyyyMMdd': 'yesterday:yyyyMMdd',
-    'dayoffset 0 yyMMdd PD 20': 'today:yyMMdd'
+    'dayoffset 0 yyMMdd PD 20': 'today:yyMMdd',
 }
 
 
 class LegacyTranslator:
-    """ translate legacy FTM custom and powershell date string to the new standard
+    """translate legacy FTM custom and powershell date string to the new standard
     keep all the file_name prefix and suffix, etc.
     Below are input examples:
     ("statestreet_") + (dayoffset -1 yyyyMMdd) + (".txt")
@@ -30,13 +30,12 @@ class LegacyTranslator:
     @staticmethod
     def __find_replace(name_part: str) -> str:
         for key, value in _format_dict.items():
-            if (key in name_part):
+            if key in name_part:
                 return '${' + name_part.replace(key, value) + '}'
         return name_part
 
     @staticmethod
     def translate(old_filename: str) -> str:
-
         name_parts = old_filename.split('+')
         name_parts = [part.strip('()"\' ') for part in name_parts]
         # create a map object

@@ -13,13 +13,13 @@ from pm_watch.stage import config_cache
 
 
 def perform_watch() -> list:
-    """ File Watch primary while loop Logic """
+    """File Watch primary while loop Logic"""
 
     log = logging.getLogger()
     log.info('<<< Watching file ... >>>')
     config = config_cache.config
     log.info(
-        f'<<< Looking for file(s) ({config.effective_file_name}) from ({config.source_path}) >>>'
+        f'<<< Looking for file(s) ({config.effective_file_names}) from ({config.source_path}) >>>'
     )
     poll_attempt: int = 0
     while True:
@@ -27,7 +27,7 @@ def perform_watch() -> list:
         files = get_files()
         match = []
         if len(files) > 0:
-            for filename in config.effective_file_name:
+            for filename in config.effective_file_names:
                 log.debug(f'checking {filename}')
                 match += fnmatch.filter(files, filename)
         # remove duplicate from the list
@@ -35,10 +35,12 @@ def perform_watch() -> list:
             match = [*set(match)]
 
         if len(match) >= config.file_count:
-            log.info('='*80)
-            log.info(f'Files Were Found In Location [ {len(match)} out of {config.file_count} ] -- {config.source_path}')
+            log.info('=' * 80)
+            log.info(
+                f'Files Were Found In Location [ {len(match)} out of {config.file_count} ] -- {config.source_path}'
+            )
             log.info(match)
-            log.info('='*80)
+            log.info('=' * 80)
             return match
         else:
             log.info(
@@ -53,7 +55,7 @@ def perform_watch() -> list:
 
 
 def get_files() -> list:
-    """ get filename list based on source path type """
+    """get filename list based on source path type"""
 
     config = config_cache.config
     log = logging.getLogger()
@@ -63,7 +65,10 @@ def get_files() -> list:
         bucket, prefix = file_helper.get_s3_bucket_prefix_by_uri(config.source_path)
         files = file_helper.get_files_on_s3(bucket, prefix)
         return files
-    elif config.effective_source_path_type == PathType.LOCAL_PATH or config.effective_source_path_type == PathType.UNC_PATH:
+    elif (
+        config.effective_source_path_type == PathType.LOCAL_PATH
+        or config.effective_source_path_type == PathType.UNC_PATH
+    ):
         # list files on local path or UNC path
         log.debug('Preparing to get files from source path  ... ')
         return os.listdir(config.source_path)
