@@ -83,18 +83,33 @@ def get_files(config: ValidJobConfig) -> list:
         raise JobConfigError('effective_source_path_type is not derived')
 
 
-def copy_files_local_2_local(src: str, dest: str):
+def copy_files_local_2_local(source_file_path: str, dest_file_path: str):
     """attempts to preserve file metadata such as last modifed date when copying
-    including local path and UNC path
-    """
-    shutil.copy2(src, dest)
+    including local path and UNC path"""
+
+    shutil.copy2(source_file_path, dest_file_path)
 
 
-def copy_files_s3_2_s3(gsrc: str, dest: str):
-    """attempts to preserve file metadata such as last modifed date when copying
-    including local path and UNC path
-    """
-    shutil.copy2(src, dest)
+def copy_files_s3_2_s3(source_bucket: str, source_key: str, dest_bucket: str, dest_key: str):
+    """copy file object from s3 bucket to another s3 bucket"""
+
+    s3 = boto3.resource('s3')
+    copy_source = {'Bucket': source_bucket, 'Key': source_key}
+    s3.meta.client.copy(copy_source, dest_bucket, dest_key)
+
+
+def copy_files_s3_2_local(source_bucket: str, source_key: str, dest_file_path: str):
+    """download file object from s3 bucket to local or UNC path"""
+
+    s3 = boto3.resource('s3')
+    s3.meta.client.download_file(source_bucket, source_key, dest_file_path)
+
+
+def copy_files_local_2_s3(source_file_path: str, dest_bucket: str, dest_key: str):
+    """update file object from local or UNC path to s3 bucket"""
+
+    s3 = boto3.resource('s3')
+    s3.meta.client.upload_file(source_file_path, dest_bucket, dest_key)
 
 
 def copy_file_by_path_type(config: ValidJobConfig, file_name: str):
@@ -102,17 +117,32 @@ def copy_file_by_path_type(config: ValidJobConfig, file_name: str):
 
     if config.effective_source_path_type == PathType.S3_PATH:
         if config.effective_copy_path_type == PathType.S3_PATH:
-            pass  # s3 to s3 copy
+            # s3 to s3 copy
+            source_bucket, source_prefix = get_s3_bucket_prefix_by_uri(config.source_path)
+            copy_bucket, copy_prefix = get_s3_bucket_prefix_by_uri(config.copy_path)
+            source_key = source_prefix + file_name
+            copy_key = copy_prefix + file_name
+            copy_files_s3_2_s3(source_bucket, source_key, copy_bucket, copy_key)
+
         else:
-            pass  # s3 to local download
+            # s3 to local/UNC download
+            source_bucket, source_prefix = get_s3_bucket_prefix_by_uri(config.source_path)
+            source_key = source_prefix + file_name
+            copy_file_path = Path(config.copy_path).joinpath(file_name).resolve()
+            copy_files_s3_2_local(source_bucket, source_key, copy_file_path)
     else:
         if config.effective_copy_path_type == PathType.S3_PATH:
-            pass  # local to s3 upload
+            # local/UNC to s3 upload
+            source_file_path = Path(config.source_path).joinpath(file_name).resolve()
+            copy_bucket, copy_prefix = get_s3_bucket_prefix_by_uri(config.copy_path)
+            copy_key = copy_prefix + file_name
+            copy_files_local_2_s3(source_file_path, copy_bucket, copy_key)
+
         else:
             # local to local copy including UNC path
-            src = Path(config.source_path).joinpath(file_name).resolve()
-            dest = Path(config.copy_path).joinpath(file_name).resolve()
-            copy_files_local_2_local(src, dest)
+            source_file_path = Path(config.source_path).joinpath(file_name).resolve()
+            copy_file_path = Path(config.copy_path).joinpath(file_name).resolve()
+            copy_files_local_2_local(source_file_path, copy_file_path)
 
 
 def copy_files(config: ValidJobConfig, files: list) -> None:
@@ -130,17 +160,33 @@ def archive_file_by_path_type(config: ValidJobConfig, file_name: str):
 
     if config.effective_source_path_type == PathType.S3_PATH:
         if config.effective_archive_path_type == PathType.S3_PATH:
-            pass  # s3 to s3 copy
+            # s3 to s3 copy
+            source_bucket, source_prefix = get_s3_bucket_prefix_by_uri(config.source_path)
+            archive_bucket, archive_prefix = get_s3_bucket_prefix_by_uri(config.archive_path)
+            source_key = source_prefix + file_name
+            archive_key = archive_prefix + file_name
+            copy_files_s3_2_s3(source_bucket, source_key, archive_bucket, archive_key)
+
         else:
-            pass  # s3 to local download
+            # s3 to local download
+            source_bucket, source_prefix = get_s3_bucket_prefix_by_uri(config.source_path)
+            source_key = source_prefix + file_name
+            archive_file_path = Path(config.archive_path).joinpath(file_name).resolve()
+            copy_files_s3_2_local(source_bucket, source_key, archive_file_path)
+
     else:
         if config.effective_archive_path_type == PathType.S3_PATH:
-            pass  # local to s3 upload
+            # local to s3 upload
+            source_file_path = Path(config.source_path).joinpath(file_name).resolve()
+            archive_bucket, archive_prefix = get_s3_bucket_prefix_by_uri(config.archive_path)
+            archive_key = archive_prefix + file_name
+            copy_files_local_2_s3(source_file_path, archive_bucket, archive_key)
+
         else:
             # local to local copy including UNC path
-            src = Path(config.source_path).joinpath(file_name).resolve()
-            dest = Path(config.archive_path).joinpath(file_name).resolve()
-            copy_files_local_2_local(src, dest)
+            source_file_path = Path(config.source_path).joinpath(file_name).resolve()
+            archive_file_path = Path(config.archive_path).joinpath(file_name).resolve()
+            copy_files_local_2_local(source_file_path, archive_file_path)
 
 
 def archive_files(config: ValidJobConfig, files: list) -> None:

@@ -56,4 +56,20 @@ values ('test_11','TEST','Test copy_files local to local', 'RIC_APX_*_{yyyyMMdd}
 insert pm_watch_job_config (job_name, app_id, job_description, file_names, file_count, source_path, sleep_time,look_time, use_copy, copy_path, use_archive, archive_path)
 values ('test_12','TEST','Test copy_files local to local', 'RIC_APX_*_{yyyyMMdd}.dat', 5, 'C:\cwang\Apps\source_location', 5,20, 1, 'C:\cwang\Apps\inbound',1,'C:\cwang\Apps\archive' )
 
+-- test_13 Test copy_files s3 to s3
+insert pm_watch_job_config (job_name, app_id, job_description, file_names, file_count, source_path, sleep_time,look_time, use_copy, copy_path)
+values ('test_13','TEST','Test copy_files s3 to s3', 'RIC_APX_*_{yyyyMMdd}.dat', 5, 's3://s3-agtps01-use-dev/AGTPS/inbound/', 10,20, 1, 's3://s3-agtps01-use-dev/AGTPS/Archive/inbound/' )
+
+-- test_14 Test copy_files s3 to local/UNC (s3 download)
+insert pm_watch_job_config (job_name, app_id, job_description, file_names, file_count, source_path, sleep_time,look_time, use_copy, copy_path)
+values ('test_14','TEST','Test copy_files s3 to local/UNC (s3 download)', 'RIC_APX_*_{yyyyMMdd}.dat', 5, 's3://s3-agtps01-use-dev/AGTPS/inbound/', 10,20, 1, 'C:\cwang\Apps\inbound' )
+
+-- test_15 Test copy_files from local/UNC to s3 (s3 upload)
+insert pm_watch_job_config (job_name, app_id, job_description, file_names, file_count, source_path, sleep_time,look_time, use_copy, copy_path)
+values ('test_15','TEST','Test copy_files from local/UNC to s3 (s3 upload)', 'RIC_APX_*_{yyyyMMdd}.dat', 5, 'C:\cwang\Apps\inbound', 10,20, 1, 's3://s3-agtps01-use-dev/AGTPS/Archive/outbound/' )
+
+-- test_16 Test copy_files from s3 to local, then archive to s3
+insert pm_watch_job_config (job_name, app_id, job_description, file_names, file_count, source_path, sleep_time,look_time, use_copy, copy_path, use_archive, archive_path)
+values ('test_16','TEST','Test copy_files from s3 to local, then archive to s3', 'RIC_APX_*_{yyyyMMdd}.dat', 5, 's3://allspring-us-east-1-s3-sftp-storage/wellsfargo/AGTPS/prod/inbound/', 10,20, 1, 'C:\cwang\Apps\inbound',1, 's3://s3-agtps01-use-dev/AGTPS/Archive/inbound/' )
+
 

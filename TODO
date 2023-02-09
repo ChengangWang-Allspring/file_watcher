@@ -1,19 +1,15 @@
-s3 read
-
-path archive
-s3 copy
-s3 archive
-
-config parameter validation
-validate S3 URI
-
-holiday logic
-
-Parse datetime string from Gene's Powershell DateTime format 
---> to my Python format
-
-Parse from my Pyathon format --> to actually filename, considering Global "app-id.yaml"
-override (if PD is not 8PM central)
-
-
 add method to check if file (may be being copied) stablized
+
+add logic: use_age (hours)
+add logic: minsize (file min size)
+
+## Tiburcio's feedback
+1. two new date tokens: 
+--- first day of the month
+--- first business day of the month
+2. Keep archive how many months (1 extra variable in config table)
+--- 
+
+
+copy-name (overides or add prefix): future feature
+archive_name (add additional suffix time-stamp): future feature
