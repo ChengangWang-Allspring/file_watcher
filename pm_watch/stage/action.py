@@ -34,6 +34,14 @@ def perform_watch() -> list:
         if len(match) > 0:
             match = [*set(match)]  # remove posible duplicate by converting set
 
+        if config.min_size is not None and config.min_size>0:
+            pass  # check file size TODO
+
+        if config.exclude_age is not None and config.exclude_age>0:
+            pass # check file age TODO
+
+        # TODO: check if file has stablized by where last modified date changes
+
         if len(match) >= config.file_count:
             log.info('=' * 80)
             log.info(

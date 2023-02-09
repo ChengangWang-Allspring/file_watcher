@@ -40,7 +40,7 @@ values ('test_8','TEST','Test error: missing app_id, file_names', '', 0, 'C:\cwa
 
 -- test_9: Test date tokens & formats
 insert pm_watch_job_config (job_name, app_id, job_description, file_names, file_count, source_path, sleep_time,look_time)
-values ('test_9','TEST','Test date tokens & formats', 'a_{yyyyMMdd}.txt,b_{today}.txt,c_{today:yyyyMMdd}.txt,d_{today_pm:yyMMdd}.txt,e_{lastwday:yyyy_MM_dd}.txt,f_{lastday:MM-dd-yyyy}.txt,g_{lastbday:yyyyMMdd}.txt,h_{lbdom:MM-dd-yyyy}.txt,i_{ldom:MM_dd_yyyy}.txt', 100, 'C:\cwang\Apps\inbound', 5,10 )
+values ('test_9','TEST','Test date tokens & formats', 'a_{yyyyMMdd}.txt,b_{today}.txt,c_{fbdom:yyyyMMdd}.txt,d_{today_pm:yyMMdd}.txt,e_{lastwday:yyyy_MM_dd}.txt,f_{lastday:MM-dd-yyyy}.txt,g_{lastbday:yyyyMMdd}.txt,h_{lbdom:MM-dd-yyyy}.txt,i_{ldom:MM_dd_yyyy}.txt,j_{fdom:MM_dd_yyyy}.txt', 100, 'C:\cwang\Apps\inbound', 5,10 )
 
 
 -- test_10: Test if copy_path is valid

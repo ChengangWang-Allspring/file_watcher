@@ -145,7 +145,7 @@ def lastbday(fmt: str, offset_days: int = None, offset_hours: int = None) -> str
     my_date = today + timedelta(days=-1)
     us_holidays = holidays.UnitedStates()
     while my_date in us_holidays or my_date.weekday() >= 5:
-        my_date = my_date + timedelta(days=-1)
+        my_date += timedelta(days=-1)
     return offset(my_date, offset_days, offset_hours).strftime(fmt)
 
 
@@ -157,7 +157,7 @@ def lbdom(fmt: str, offset_days: int = None, offset_hours: int = None) -> str:
     my_date = first - timedelta(days=1)
     us_holidays = holidays.UnitedStates()
     while my_date in us_holidays or my_date.weekday() >= 5:
-        my_date = my_date + timedelta(days=-1)
+        my_date += timedelta(days=-1)
 
     return offset(my_date, offset_days, offset_hours).strftime(fmt)
 
@@ -166,8 +166,27 @@ def ldom(fmt: str, offset_days: int = None, offset_hours: int = None) -> str:
     """last day of previous month"""
 
     today = date.today()
-    first = today.replace(day=1)
-    my_date = first - timedelta(days=1)
+    my_date = today.replace(day=1)
+    my_date -= timedelta(days=1)
+    return offset(my_date, offset_days, offset_hours).strftime(fmt)
+
+
+def fdom(fmt: str, offset_days: int = None, offset_hours: int = None) -> str:
+    """last day of previous month"""
+
+    today = date.today()
+    my_date = today.replace(day=1)
+    return offset(my_date, offset_days, offset_hours).strftime(fmt)
+
+
+def fbdom(fmt: str, offset_days: int = None, offset_hours: int = None) -> str:
+    """last day of previous month"""
+
+    today = date.today()
+    my_date = today.replace(day=1)
+    us_holidays = holidays.UnitedStates()
+    while my_date in us_holidays or my_date.weekday() >= 5:
+        my_date += timedelta(days=1)
     return offset(my_date, offset_days, offset_hours).strftime(fmt)
 
 
@@ -180,6 +199,8 @@ DATE_TOKEN_DICT = {
     'lastbday': lastbday,  # last business day
     'lbdom': lbdom,  # last business day of last month
     'ldom': ldom,  # last day of last month
+    'fbdom': fbdom,  # first business day of the current month
+    'fdom': fdom,  # first day of the current month
 }
 
 
