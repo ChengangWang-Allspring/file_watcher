@@ -6,7 +6,7 @@ SELECT * FROM pm_watch_job_config WHERE app_id='TEST'
 
 -- test_1: Test local path, single file
 insert pm_watch_job_config (job_name, app_id, job_description, file_names, file_count, source_path, sleep_time,look_time)
-values ('test_1','TEST','Test local path, single file', 'RIC_APX_Holdings_{yyyyMMdd}.dat', 1, 'C:\cwang\Apps\inbound', 5,20 )
+values ('test_1','TEST','Test local path, single file', 'RIC_APX_*_{yyyyMMdd}.dat', 5, 'C:\cwang\Apps\inbound', 5,20 )
 
 -- test_2: Test UNC path, single file
 insert pm_watch_job_config (job_name, app_id, job_description, file_names, file_count, source_path, sleep_time,look_time)
@@ -72,4 +72,6 @@ values ('test_15','TEST','Test copy_files from local/UNC to s3 (s3 upload)', 'RI
 insert pm_watch_job_config (job_name, app_id, job_description, file_names, file_count, source_path, sleep_time,look_time, use_copy, copy_path, use_archive, archive_path)
 values ('test_16','TEST','Test copy_files from s3 to local, then archive to s3', 'RIC_APX_*_{yyyyMMdd}.dat', 5, 's3://allspring-us-east-1-s3-sftp-storage/wellsfargo/AGTPS/prod/inbound/', 10,20, 1, 'C:\cwang\Apps\inbound',1, 's3://s3-agtps01-use-dev/AGTPS/Archive/inbound/' )
 
-
+-- test_17: Test min_size local
+insert pm_watch_job_config (job_name, app_id, job_description, file_names, file_count, source_path, sleep_time,look_time, min_size)
+values ('test_17','TEST','Test min_size local', 'RIC_APX_Accounts_{yyyyMMdd}.dat', 1, 'C:\cwang\Apps\inbound', 5,20, 12000 )

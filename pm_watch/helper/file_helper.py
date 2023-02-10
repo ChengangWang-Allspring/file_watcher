@@ -6,6 +6,7 @@ import os
 import logging
 import shutil
 from pathlib import Path
+from datetime import datetime
 
 
 from pm_watch.helper import common
@@ -24,6 +25,35 @@ def read_yml_config(job_name: str) -> dict:
         raise ex
 
 
+def last_modified(file_name: str, source_path: str):
+    """return last modifed for a single file"""
+    file_path = os.path.join(source_path, file_name)
+    stats = os.stat(file_path)
+    return datetime.fromtimestamp(stats.st_mtime)
+
+
+def file_size(file_name: str, source_path: str):
+    """return file size for a single file"""
+    file_path = os.path.join(source_path, file_name)
+    stats = os.stat(file_path)
+    return stats.st_size
+
+
+def get_files_on_local(source_path: str):
+    """get files from local or UNC path"""
+
+    file_names = os.listdir(source_path)
+    dup_path_list =  [source_path] * len(file_names)
+    last_modified_list = list(map(last_modified, file_names, dup_path_list))
+    size_list = list(map(file_size, file_names, dup_path_list))
+
+    # dictionary comprehension
+    date_dict = {file_names[i]: last_modified_list[i] for i in range(len(file_names))}
+    size_dict = {file_names[i]: size_list[i] for i in range(len(file_names))}
+
+    return (file_names, date_dict, size_dict)
+
+
 def get_files_on_s3(my_bucket: str, my_prefix: str) -> list:
     """use boto3 s3 client and function list_objects_v2
     to retieve list of filenames (without prefix) from s3
@@ -34,23 +64,37 @@ def get_files_on_s3(my_bucket: str, my_prefix: str) -> list:
         log.debug('Setting up boto3 s3 client ... ')
         s3 = boto3.client('s3')
         log.debug('Sending request using list_objects_v2 ... ')
-        # get AWS response in a dictionary object
-        response = s3.list_objects_v2(Bucket=my_bucket, Prefix=my_prefix)
-        log.debug('Parsing contents in response ... ')
-        if 'Contents' in response:
-            # get list of file objects by key <Contents>
-            contents = response['Contents']
-            # list comprehension to get pure filename list without prefix
-            # log.debug(f'Total count in contents including prefix: {len(contents)}')
-            # log.debug(contents)
-            files = [
-                item['Key'].replace(my_prefix, '') for item in contents if item['Key'] != my_prefix
-            ]
-            # log.debug(f'Pure filename list (count: {len(files)}) retrieved. ')
-            return files
-        else:
-            log.debug(f'Cannot find <Contents> in response dictionary')
-            return []
+        # set up paginator to get page by page
+        paginator = s3.get_paginator('list_objects_v2')
+        PAGE_SIZE = 100
+        pages = paginator.paginate(
+            Bucket=my_bucket, Prefix=my_prefix, PaginationConfig={'PageSize': PAGE_SIZE}
+        )
+        obj_list = []
+        for page in pages:
+            contents = page['Contents']
+            # print(f'page_index: {page_index }, Files count: {len(contents)}')
+            obj_list += page['Contents']
+        log.debug(f'total file count in all pages = {len(obj_list)}')
+
+        # list comprehension
+        file_names = [
+            obj['Key'].replace(my_prefix, '') for obj in obj_list if obj['Key'] != my_prefix
+        ]
+        # dictionary comprehension
+        date_dict = {
+            obj['Key'].replace(my_prefix, ''): obj['LastModified']
+            for obj in obj_list
+            if obj['Key'] != my_prefix
+        }
+        size_dict = {
+            obj['Key'].replace(my_prefix, ''): obj['Size']
+            for obj in obj_list
+            if obj['Key'] != my_prefix
+        }
+
+        return (file_names, date_dict, size_dict)
+
     except Exception as e:
         e.add_note('Internal Exception thrown during get_files_on_s3.')
         raise e
@@ -78,7 +122,7 @@ def get_files(config: ValidJobConfig) -> list:
     elif config.effective_source_path_type in [PathType.LOCAL_PATH, PathType.UNC_PATH]:
         # list files on local path or UNC path
         log.debug('Preparing to get files from source path  ... ')
-        return os.listdir(config.source_path)
+        return get_files_on_local(config.source_path)
     else:
         raise JobConfigError('effective_source_path_type is not derived')
 
