@@ -75,3 +75,9 @@ values ('test_16','TEST','Test copy_files from s3 to local, then archive to s3',
 -- test_17: Test min_size local
 insert pm_watch_job_config (job_name, app_id, job_description, file_names, file_count, source_path, sleep_time,look_time, min_size)
 values ('test_17','TEST','Test min_size local', 'RIC_APX_Accounts_{yyyyMMdd}.dat', 1, 'C:\cwang\Apps\inbound', 5,20, 12000 )
+
+
+
+-- test_18: Test exclude_age local
+insert pm_watch_job_config (job_name, app_id, job_description, file_names, file_count, source_path, sleep_time,look_time, exclude_age)
+values ('test_18','TEST','Test min_size local', 'RIC_APX_Accounts_{yyyyMMdd}.dat', 1, 'C:\cwang\Apps\inbound', 5,20, 12 )

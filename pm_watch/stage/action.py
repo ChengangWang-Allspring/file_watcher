@@ -68,17 +68,17 @@ def perform_watch() -> list:
 
             keep_waiting = True
             while keep_waiting:
-                time.sleep(3)
+                time.sleep(5)
                 files, date_dict, size_dict = file_helper.get_files(config)
-
+                keep_waiting = False
                 for file in match:
-                    if (
-                        old_date_dict[file] != date_dict[file]
-                        or old_size_dict[file] != date_dict[file]
-                    ):
-                        break
-                else:
-                    keep_waiting = False
+                    if old_date_dict[file] != date_dict[file]:
+                        old_date_dict[file] = date_dict[file]
+                        keep_waiting = True
+                    if old_size_dict[file] != date_dict[file]:
+                        old_size_dict[file] = date_dict[file]
+                        keep_waiting = True
+
             log.info('Files are stable (OK) ')
             log.info(match)
             log.info('=' * 80)
