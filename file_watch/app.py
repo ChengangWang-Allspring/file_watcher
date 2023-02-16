@@ -5,13 +5,15 @@ import logging.config
 from datetime import datetime
 
 
-from pm_watch.stage import prepare
-from pm_watch.stage import action
-from pm_watch.helper.common import Setting
+from file_watch.stage import prepare
+from file_watch.stage import action
+from file_watch.helper.common import Setting
 
 
 def run():
     try:
+        log = None
+
         # parse arguments
         prepare.parse_args()
 
@@ -32,12 +34,20 @@ def run():
         action.may_perform_archive(files)
 
     except Exception as ex:
-        log.error('<<<<< Error caught in file_watcher main() >>>>>')
-        log.error(type(ex).__name__)
-        log.error(ex)
-        if Setting.debug:
-            log.error(traceback.format_exc())
-        sys.exit(875)
+        if log is not None:
+            log.error('<<<<< Error caught in file_watcher main() >>>>>')
+            log.error(type(ex).__name__)
+            log.error(ex)
+            if Setting.debug:
+                log.error(traceback.format_exc())
+            sys.exit(875)
+        else:
+            print('<<<<< Error caught in file_watcher main() >>>>>', file=sys.stderr)
+            print(type(ex).__name__, file=sys.stderr)
+            print(ex, file=sys.stderr)
+            if Setting.debug:
+                print(traceback.format_exc(), file=sys.stderr)
+            sys.exit(875)
 
     else:
         now = datetime.now().strftime('%c')

@@ -9,9 +9,9 @@ from pathlib import Path
 from datetime import datetime
 
 
-from pm_watch.helper import common
-from pm_watch.helper.common import PathType, JobConfigError
-from pm_watch.core.config_core import ValidJobConfig
+from file_watch.helper import common
+from file_watch.helper.common import PathType, JobConfigError
+from file_watch.core.config_core import ValidJobConfig
 
 
 def read_yml_config(job_name: str) -> dict:
@@ -43,7 +43,7 @@ def get_files_on_local(source_path: str):
     """get files from local or UNC path"""
 
     file_names = os.listdir(source_path)
-    dup_path_list =  [source_path] * len(file_names)
+    dup_path_list = [source_path] * len(file_names)
     last_modified_list = list(map(last_modified, file_names, dup_path_list))
     size_list = list(map(file_size, file_names, dup_path_list))
 
@@ -71,9 +71,11 @@ def get_files_on_s3(my_bucket: str, my_prefix: str) -> list:
             Bucket=my_bucket, Prefix=my_prefix, PaginationConfig={'PageSize': PAGE_SIZE}
         )
         obj_list = []
+        page_index = 0
         for page in pages:
             contents = page['Contents']
-            # print(f'page_index: {page_index }, Files count: {len(contents)}')
+            page_index += 1
+            log.debug(f'page_index: {page_index }, Files count: {len(contents)}')
             obj_list += page['Contents']
         log.debug(f'total file count in all pages = {len(obj_list)}')
 
@@ -160,10 +162,10 @@ def copy_file_by_path_type(config: ValidJobConfig, file_name: str):
     """select corresponding function to call based on source and destination PathType"""
 
     if config.effective_source_path_type == PathType.S3_PATH:
-        if config.effective_copy_path_type == PathType.S3_PATH:
+        if config.effective_target_path_type == PathType.S3_PATH:
             # s3 to s3 copy
             source_bucket, source_prefix = get_s3_bucket_prefix_by_uri(config.source_path)
-            copy_bucket, copy_prefix = get_s3_bucket_prefix_by_uri(config.copy_path)
+            copy_bucket, copy_prefix = get_s3_bucket_prefix_by_uri(config.target_path)
             source_key = source_prefix + file_name
             copy_key = copy_prefix + file_name
             copy_files_s3_2_s3(source_bucket, source_key, copy_bucket, copy_key)
@@ -172,25 +174,25 @@ def copy_file_by_path_type(config: ValidJobConfig, file_name: str):
             # s3 to local/UNC download
             source_bucket, source_prefix = get_s3_bucket_prefix_by_uri(config.source_path)
             source_key = source_prefix + file_name
-            copy_file_path = Path(config.copy_path).joinpath(file_name).resolve()
+            copy_file_path = Path(config.target_path).joinpath(file_name).resolve()
             copy_files_s3_2_local(source_bucket, source_key, copy_file_path)
     else:
-        if config.effective_copy_path_type == PathType.S3_PATH:
+        if config.effective_target_path_type == PathType.S3_PATH:
             # local/UNC to s3 upload
             source_file_path = Path(config.source_path).joinpath(file_name).resolve()
-            copy_bucket, copy_prefix = get_s3_bucket_prefix_by_uri(config.copy_path)
+            copy_bucket, copy_prefix = get_s3_bucket_prefix_by_uri(config.target_path)
             copy_key = copy_prefix + file_name
             copy_files_local_2_s3(source_file_path, copy_bucket, copy_key)
 
         else:
             # local to local copy including UNC path
             source_file_path = Path(config.source_path).joinpath(file_name).resolve()
-            copy_file_path = Path(config.copy_path).joinpath(file_name).resolve()
+            copy_file_path = Path(config.target_path).joinpath(file_name).resolve()
             copy_files_local_2_local(source_file_path, copy_file_path)
 
 
 def copy_files(config: ValidJobConfig, files: list) -> None:
-    """copy files from source_path to copy_path"""
+    """copy files from source_path to target_path"""
 
     log = logging.getLogger()
     for file_name in files:

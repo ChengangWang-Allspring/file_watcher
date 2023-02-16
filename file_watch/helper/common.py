@@ -5,7 +5,7 @@ from datetime import datetime
 
 
 class Constant:
-    """ constants that would never change """
+    """constants that would never change"""
 
     DATA_RELATIVE_PATH = 'data/'
     DATA_YML_RELATIVE_PATH = 'data/yml/'
@@ -49,12 +49,13 @@ class Constant:
 
 
 class JobConfigError(Exception):
-    """ custom job config error """
+    """custom job config error"""
+
     pass
 
 
 class JobConfigType(Enum):
-    """ Job config types that are currently supported """
+    """Job config types that are currently supported"""
 
     YML_CONFIG = auto()
     CSV_CONFIG = auto()
@@ -62,7 +63,7 @@ class JobConfigType(Enum):
 
 
 class PathType(Enum):
-    """ Path types that are currently supported """
+    """Path types that are currently supported"""
 
     LOCAL_PATH = auto()
     UNC_PATH = auto()
@@ -70,35 +71,34 @@ class PathType(Enum):
 
 
 class Setting:
-    """ store global settings, command arguments, etc """
+    """store global settings, command arguments, etc"""
 
     # this is where we can switch to YML_Config or DB_Config (CSV_config TBD)
     # Effective JobConfigType
     job_config_type: JobConfigType = JobConfigType.DB_CONFIG
 
     debug: bool = False
+    db_profile: str = None
     job_name: str = None
     log_file_path: str = None
-    job_config_path: str = None
+    # job_config_path: str = None
 
     @classmethod
     def print_log(cls):
         log = logging.getLogger()
-        log.info('<< Settings >>')
+        log.info('<< Global settings >>')
         log.info(f'{"debug"} : {Setting.debug }')
         log.info(f'{"job_name"} : {Setting.job_name }')
         log.info(f'{"log_file_path"} : {Setting.log_file_path }')
-        log.info(f'{"job_config_path"} : {Setting.job_config_path }')
         log.info(f'{"job_config_type"} : {Setting.job_config_type }')
 
 
 def get_yml_file_path(job_name: str):
-    """ get job yml config's absolute path  """
+    """get job yml config's absolute path"""
 
     # go up 2 levels relatively (to the root folder)
     path = Path(__file__).parent.parent
-    path = path.joinpath(Constant.DATA_YML_RELATIVE_PATH).joinpath(
-        f'{job_name}.yml')
+    path = path.joinpath(Constant.DATA_YML_RELATIVE_PATH).joinpath(f'{job_name}.yml')
     return path
 
 
@@ -106,6 +106,5 @@ def get_log_file_path(job_name: str):
     # get logs absolute path from this module's path
     path = Path(__file__).parent.parent
     str_date = datetime.today().strftime('%Y-%m-%d')
-    path = path.joinpath(Constant.LOGS_RELATIVE_PATH).joinpath(
-        f'{job_name}_{str_date}.log')
+    path = path.joinpath(Constant.LOGS_RELATIVE_PATH).joinpath(f'{job_name}_{str_date}.log')
     return path

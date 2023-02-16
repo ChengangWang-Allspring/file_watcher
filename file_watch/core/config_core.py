@@ -3,8 +3,8 @@ from pydantic import BaseModel, validator, ValidationError, root_validator
 import logging
 from typing import Optional, List
 
-from pm_watch.core import core_helper
-from pm_watch.helper.common import PathType, JobConfigType, JobConfigError
+from file_watch.core import core_helper
+from file_watch.helper.common import PathType, JobConfigType, JobConfigError
 
 
 def list_has_dups(my_list: list) -> bool:
@@ -32,7 +32,7 @@ class ValidJobConfig(BaseModel):
     exclude_age: Optional[int]
     use_copy: Optional[bool] = False
     copy_names: Optional[List[str]]
-    copy_path: Optional[str]
+    target_path: Optional[str]
     use_archive: Optional[bool] = False
     archive_names: Optional[List[str]]
     archive_path: Optional[str]
@@ -42,7 +42,7 @@ class ValidJobConfig(BaseModel):
     # derived fields must be after base fields
     job_name: str = None
     effective_source_path_type: PathType = None
-    effective_copy_path_type: PathType = None
+    effective_target_path_type: PathType = None
     effective_archive_path_type: PathType = None
     effective_file_names: List[str] = None
     effective_job_config_type: JobConfigType = None
@@ -84,14 +84,14 @@ class ValidJobConfig(BaseModel):
             raise JobConfigError('value must be greater or equal than 1')
         return value
 
-    @validator('copy_path', always=True)
+    @validator('target_path', always=True)
     @classmethod
-    def validate_copy_path(cls, value, values):
-        """these copy_path is required if use_copy is true"""
+    def validate_target_path(cls, value, values):
+        """these target_path is required if use_copy is true"""
 
         use_copy: bool = values['use_copy'] if 'use_copy' in values else False
         if use_copy and value is None:
-            raise JobConfigError('copy_path is required if use_copy is true')
+            raise JobConfigError('target_path is required if use_copy is true')
         return value
 
     @validator('archive_path', always=True)
@@ -110,9 +110,9 @@ class ValidJobConfig(BaseModel):
         """business logic validation"""
 
         # source, copy and archive paths can not be the same
-        path_list = [values.get(item) for item in ('source_path', 'copy_path', 'archive_path')]
+        path_list = [values.get(item) for item in ('source_path', 'target_path', 'archive_path')]
         if list_has_dups(path_list):
-            raise JobConfigError('duplicate values in source_path, copy_path or archive_path')
+            raise JobConfigError('duplicate values in source_path, target_path or archive_path')
 
         # if use_copy true, copy_names should be None or same len as source_name
         use_copy = values.get('use_copy')
@@ -149,23 +149,23 @@ class ValidJobConfig(BaseModel):
 
         return path_type
 
-    @validator('effective_copy_path_type', always=True)
+    @validator('effective_target_path_type', always=True)
     @classmethod
-    def validate_effective_copy_path_type(cls, value, values, **kwargs):
+    def validate_effective_target_path_type(cls, value, values, **kwargs):
         """parse path_type, this validator is required for derived fields"""
 
         use_copy = values['use_copy'] if 'use_copy' in values else False
-        copy_path = values['copy_path'] if 'copy_path' in values else ''
+        target_path = values['target_path'] if 'target_path' in values else ''
         path_type: PathType = None
         if use_copy:
             try:
-                path_type = core_helper.validate_path_type(copy_path)
+                path_type = core_helper.validate_path_type(target_path)
             except Exception as ex:
                 log = logging.getLogger()
-                log.error('Excetion caught in validate_effective_copy_path_type()')
+                log.error('Excetion caught in validate_effective_target_path_type()')
                 raise ex
             if path_type is None:
-                raise JobConfigError('cannot derive effective_copy_path_type from copy_path')
+                raise JobConfigError('cannot derive effective_target_path_type from target_path')
         return path_type
 
     @validator('effective_archive_path_type', always=True)
@@ -204,6 +204,8 @@ class ValidJobConfig(BaseModel):
                     core_helper.parse_file_name(item, offset_days, offset_hours)
                     for item in file_names
                 ]
+                log = logging.getLogger()
+                log.info('-' * 80)
             except Exception as ex:
                 log = logging.getLogger()
                 log.error('Exception caught in validate_effective_file_names()')
@@ -227,15 +229,17 @@ class ValidJobConfig(BaseModel):
         log.info(f'{"exclude_age"} : {self.exclude_age }')
         log.info(f'{"use_copy"} : {self.use_copy }')
         log.info(f'{"copy_names"} : {self.copy_names }')
-        log.info(f'{"copy_path"} : {self.copy_path }')
+        log.info(f'{"target_path"} : {self.target_path }')
         log.info(f'{"use_archive"} : {self.use_archive }')
         log.info(f'{"archive_names"} : {self.archive_names }')
         log.info(f'{"archive_path"} : {self.archive_path }')
         log.info(f'{"offset_days"} : {self.offset_days }')
         log.info(f'{"offset_hours"} : {self.offset_hours }')
+        log.info('-' * 80)
         log.info('<< Resolved Variables >>')
         log.info(f'{"effective_source_path_type"} : {self.effective_source_path_type }')
-        log.info(f'{"effective_copy_path_type"} : {self.effective_copy_path_type }')
+        log.info(f'{"effective_target_path_type"} : {self.effective_target_path_type }')
         log.info(f'{"effective_archive_path_type"} : {self.effective_archive_path_type }')
         log.info(f'{"effective_file_names"} : {self.effective_file_names }')
         log.info(f'{"effective_job_config_type"} : {self.effective_job_config_type }')
+        log.info('-' * 80)

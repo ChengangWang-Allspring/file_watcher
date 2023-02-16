@@ -1,7 +1,7 @@
 """ 
 Holiday to display holidays
 usage (to display holiday in 2023): 
-    python -m pm_watch.utility.holiday 2023
+    python -m file_watch.utility.holiday 2023
 """
 
 from datetime import date

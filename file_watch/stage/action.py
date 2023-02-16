@@ -8,10 +8,10 @@ import os
 from datetime import datetime
 from datetime import timedelta
 
-from pm_watch.helper.common import PathType, JobConfigError
-from pm_watch.helper import file_helper
-from pm_watch.core.config_core import ValidJobConfig
-from pm_watch.stage import config_cache
+from file_watch.helper.common import PathType, JobConfigError
+from file_watch.helper import file_helper
+from file_watch.core.config_core import ValidJobConfig
+from file_watch.stage import config_cache
 
 
 def perform_watch() -> list:
@@ -104,7 +104,7 @@ def may_peform_copy(file_list: list):
         log = logging.getLogger()
         log.info('<<< Copying file ... >>>')
         log.info(f'{"source_path"} : {config.source_path }')
-        log.info(f'{"copy_path"} : {config.copy_path }')
+        log.info(f'{"target_path"} : {config.target_path }')
         log.info(f'{"effective_file_names"} : {config.effective_file_names }')
         log.info(f'Files found by file_watch at source_path: {file_list}')
         file_helper.copy_files(config, file_list)

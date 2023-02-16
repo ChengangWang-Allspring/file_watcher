@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
 
-from pm_watch.helper.common import JobConfigType, JobConfigError
-from pm_watch.helper import file_helper
-from pm_watch.core import core_helper
+from file_watch.helper.common import JobConfigType, JobConfigError
+from file_watch.helper import file_helper
+from file_watch.core import core_helper
 
 
 class ConfigBase(ABC):
-    """ abstract base config """
+    """abstract base config"""
 
     def __init__(self, job_name: str):
         self.job_name = job_name
@@ -17,7 +17,7 @@ class ConfigBase(ABC):
 
 
 class YmlConfig(ConfigBase):
-    """ Yml config """
+    """Yml config"""
 
     # overriding abstract method
     def get_config_dict(self) -> dict:
@@ -26,7 +26,7 @@ class YmlConfig(ConfigBase):
 
 
 class CsvConfig(ConfigBase):
-    """ CSV Config """
+    """CSV Config"""
 
     # overriding abstract method
     def get_config_dict(self) -> dict:
@@ -34,7 +34,7 @@ class CsvConfig(ConfigBase):
 
 
 class DbConfig(ConfigBase):
-    """ DB Config """
+    """DB Config"""
 
     # overriding abstract method
     def get_config_dict(self) -> dict:
@@ -43,11 +43,9 @@ class DbConfig(ConfigBase):
 
 
 class ConfigFactory:
-
     # get job config dictionary based on type
     @staticmethod
     def get_config_dict(job_name: str, job_config_type: JobConfigType) -> dict:
-
         match job_config_type:
             case JobConfigType.YML_CONFIG:
                 config = YmlConfig(job_name)

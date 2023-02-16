@@ -13,7 +13,7 @@ exclude_age: 12
 # Optinal copy files
 use_copy: true
 copy_name: 
-copy_path: C:\cwang\abcde
+target_path: C:\cwang\abcde
 # Optinal Archive files
 use_archive: true
 archive_name: 
