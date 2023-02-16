@@ -6,17 +6,15 @@ import traceback
 import configparser
 import logging
 from pathlib import Path
+from datetime import datetime
 
-from file_watch.core import date_core
-from file_watch.core.date_core import date_token_dict
+from file_watch.core import date_parser
 from file_watch.helper.common import Constant, PathType, Setting, JobConfigError, Setting
 
 
 def parse_file_name(file_name: str, offset_days: int = None, offset_hours: int = None) -> str:
     """parse an individual filename that contains '{<token>:<Date fmt>}'
     <Date fmt> is .NET based Date Format string. It will be converted to Python date format string
-    if '<token>:' is missing, the default token is 'today'
-    <Date fmt> such as 'YYYYMMDD' is always required to prevent confusion.
     """
 
     token: list[str] = re.findall(Constant.REGEX_FILE_NAME, file_name)
@@ -24,29 +22,21 @@ def parse_file_name(file_name: str, offset_days: int = None, offset_hours: int =
     if len(token) == 0:
         return file_name
     elif len(token) > 1:
-        raise JobConfigError(f'file_name cannot have more than 1 variables: {file_name}')
+        raise JobConfigError(f'cannot have more than one date_token_fmt variables: {file_name}')
 
+    date_token_fmt = token[0]
     log = logging.getLogger()
     log.info('-' * 80)
     log.info(f'parsing file_name: {file_name} ')
+    log.info(f'date_token_fmt variable: {{{date_token_fmt}}}')
 
-    if ':' in token[0]:
-        date_token, date_fmt = token[0].split(':')
-    else:
-        if token[0] in date_token_dict.keys():
-            date_token = token[0]
-            date_fmt = date_core.DEFAULT_DATE_FORMAT
-            log = logging.getLogger()
-            log.info(f'implicit default date_format: {date_core.DEFAULT_DATE_FORMAT} ')
-        else:
-            date_token = date_core.DEFAULT_DATE_TOKEN
-            log = logging.getLogger()
-            log.info(f'implicit default date_token: {date_core.DEFAULT_DATE_TOKEN} ')
-            date_fmt = token[0]
+    date_token, date_fmt = date_parser.split_date_token_fmt(date_token_fmt)
 
     # get date string by token and format
-    parsed_date_str = date_core.parse_date_token(date_token, date_fmt, offset_days, offset_hours)
-    parsed_file_name = file_name.replace('{' + token[0] + '}', parsed_date_str)
+    parsed_date_str = date_parser.parse_format_date(
+        datetime.now(), date_token, date_fmt, offset_days, offset_hours
+    )
+    parsed_file_name = file_name.replace('{' + date_token_fmt + '}', parsed_date_str)
     log.info(f'effective_file_name: {parsed_file_name}')
     return parsed_file_name
 
@@ -127,8 +117,7 @@ def get_job_config_db(job_name: str) -> dict:
 
     except Exception as ex:
         log.error(ex)
-        if Setting.debug:
-            log.error(traceback.format_exc())
+        log.debug(traceback.format_exc())
         raise ex
     finally:
         conn.close()

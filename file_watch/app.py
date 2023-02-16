@@ -38,8 +38,7 @@ def run():
             log.error('<<<<< Error caught in file_watcher main() >>>>>')
             log.error(type(ex).__name__)
             log.error(ex)
-            if Setting.debug:
-                log.error(traceback.format_exc())
+            log.debug(traceback.format_exc())
             sys.exit(875)
         else:
             print('<<<<< Error caught in file_watcher main() >>>>>', file=sys.stderr)
