@@ -1,8 +1,10 @@
 import yaml
 
+import sys
 import argparse
 import logging
 from datetime import datetime
+from typing import List
 
 from file_watch.helper import common
 from file_watch.helper.common import Setting, JobConfigType, PathType, Constant
@@ -11,12 +13,12 @@ from file_watch.core.config_core import ValidJobConfig
 from file_watch.stage import config_cache
 
 
-def parse_args():
+def parse_args(argv: List[str]) -> argparse.Namespace:
     """
     File watch utility. Check README.md
 
     Example useage:
-        python -m file_watch [-h] [-d]  <job_name>
+        python -m file_watch [--db db_profile] [--debug]  <job_name>
         required python version 3.11
     <job_name>.yml configuration file has to be in /conf folder.
     """
@@ -31,7 +33,13 @@ def parse_args():
     parser.add_argument(
         '--debug', dest='debug', action='store_true', help='force debug level log message'
     )
-    args = parser.parse_args()
+    return parser.parse_args(argv[1:])
+
+
+def parse_args_to_settings(argv: List[str]):
+    """parse command arguments into setting"""
+
+    args = parse_args(argv)
     Setting.job_name = args.job_name
     Setting.debug = args.debug
     Setting.db_profile = args.db_profile

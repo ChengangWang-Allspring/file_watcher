@@ -2,24 +2,21 @@ import sys
 import traceback
 import logging
 import logging.config
+from typing import List
 from datetime import datetime
 
 
-from file_watch.stage import prepare
-from file_watch.stage import action
+from file_watch.stage import prepare, action, cleanup
 from file_watch.helper.common import Setting
 
 
-def run():
+def run(argv: List[str]) -> int:
     try:
-        log = None
-
         # parse arguments
-        prepare.parse_args()
+        prepare.parse_args_to_settings(argv)
 
         # config logging
         prepare.config_logging()
-        log = logging.getLogger()
 
         # initialize job config along with logger
         prepare.load_job_config()
@@ -33,30 +30,18 @@ def run():
         # may perform archive
         action.may_perform_archive(files)
 
+        # cleanup
+        cleanup.cleanup()
+
+        return 0
+
     except Exception as ex:
-        if log is not None:
-            log.error('<<<<< Error caught in file_watcher main() >>>>>')
-            log.error(type(ex).__name__)
-            log.error(ex)
-            log.debug(traceback.format_exc())
-            sys.exit(875)
-        else:
-            print('<<<<< Error caught in file_watcher main() >>>>>', file=sys.stderr)
-            print(type(ex).__name__, file=sys.stderr)
-            print(ex, file=sys.stderr)
-            if Setting.debug:
-                print(traceback.format_exc(), file=sys.stderr)
-            sys.exit(875)
-
-    else:
-        now = datetime.now().strftime('%c')
-        log.info(
-            f'<<<<< File Watcher Job ({Setting.job_name}) -- Completed Successfully at ( {now} ) >>>>> '
-        )
-        log.info('EXIT 0')
-
-    finally:
-        pass
+        log = logging.getLogger()
+        log.error('<<<<< Error caught in file_watcher main() >>>>>')
+        log.error(ex)
+        log.debug(type(ex).__name__)
+        log.debug(traceback.format_exc())
+        return 875
 
 
 if __name__ == '__main__':

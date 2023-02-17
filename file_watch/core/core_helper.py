@@ -116,8 +116,6 @@ def get_job_config_db(job_name: str) -> dict:
             my_dict['archive_names'] = my_dict['archive_names'].split(',')
 
     except Exception as ex:
-        log.error(ex)
-        log.debug(traceback.format_exc())
         raise ex
     finally:
         conn.close()

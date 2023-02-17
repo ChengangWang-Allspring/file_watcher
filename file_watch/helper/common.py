@@ -88,9 +88,9 @@ class Setting:
         log = logging.getLogger()
         log.info('<< Global settings >>')
         log.info(f'{"debug"} : {Setting.debug }')
+        log.info(f'{"db_profile"} : {Setting.db_profile }')
         log.info(f'{"job_name"} : {Setting.job_name }')
         log.info(f'{"log_file_path"} : {Setting.log_file_path }')
-        log.info(f'{"job_config_type"} : {Setting.job_config_type }')
 
 
 def get_yml_file_path(job_name: str):

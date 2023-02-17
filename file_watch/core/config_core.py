@@ -89,7 +89,7 @@ class ValidJobConfig(BaseModel):
     def validate_target_path(cls, value, values):
         """these target_path is required if use_copy is true"""
 
-        use_copy: bool = values['use_copy'] if 'use_copy' in values else False
+        use_copy: bool = values.get('use_copy', False)     
         if use_copy and value is None:
             raise JobConfigError('target_path is required if use_copy is true')
         return value
@@ -99,7 +99,7 @@ class ValidJobConfig(BaseModel):
     def validate_archive_path(cls, value, values):
         """these archive_path is required if use_archive is true"""
 
-        use_archive: bool = values['use_archive'] if 'use_archive' in values else False
+        use_archive: bool = values.get('use_archive', False)  
         if use_archive and value is None:
             raise JobConfigError('archive_path is required if use_archive is true')
         return value
@@ -154,8 +154,8 @@ class ValidJobConfig(BaseModel):
     def validate_effective_target_path_type(cls, value, values, **kwargs):
         """parse path_type, this validator is required for derived fields"""
 
-        use_copy = values['use_copy'] if 'use_copy' in values else False
-        target_path = values['target_path'] if 'target_path' in values else ''
+        use_copy = values.get('use_copy', False)   
+        target_path = values.get('target_path',None) 
         path_type: PathType = None
         if use_copy:
             try:
@@ -173,8 +173,8 @@ class ValidJobConfig(BaseModel):
     def validate_effective_archive_path_type(cls, value, values, **kwargs):
         """parse path_type, this validator is required for derived fields"""
 
-        use_archive = values['use_archive'] if 'use_archive' in values else False
-        archive_path = values['archive_path'] if 'archive_path' in values else False
+        use_archive = values.get('use_archive', False)  
+        archive_path = values.get('use_archive')  
         path_type: PathType = None
         if use_archive:
             try:
@@ -194,9 +194,10 @@ class ValidJobConfig(BaseModel):
         """parse list of file_names with date token and date format in it
         return values will be saved in effective_file_names
         """
-        offset_days = values['offset_days'] if 'offset_days' in values else None
-        offset_hours = values['offset_hours'] if 'offset_hours' in values else None
-        file_names = values['file_names'] if 'file_names' in values else None
+        offset_days = values.get('offset_days')
+        offset_hours = values.get('offset_hours')
+        file_names = values.get('file_names')
+        print(f'############### file_names ={file_names}')
         eff_file_names = None
         if file_names is not None:
             try:

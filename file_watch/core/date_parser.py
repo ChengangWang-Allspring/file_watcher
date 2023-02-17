@@ -187,17 +187,21 @@ def split_date_token_fmt(date_token_fmt: str) -> Tuple[str, str]:
     date_token_fmt = date_token_fmt.strip()
     if ':' in date_token_fmt:
         date_token, date_fmt = [x.strip() for x in date_token_fmt.split(':')]
+        log.info(f'date_token: {{{date_token}}} ')
+        log.info(f'date_format: {{{date_fmt}}}')
     else:
         if date_token_fmt.lower() in date_token_dict.keys():  # case insensitive
             date_token = date_token_fmt
             date_fmt = DEFAULT_DATE_FORMAT
             log = logging.getLogger()
-            log.info(f'implicit default date_format: {DEFAULT_DATE_FORMAT} ')
+            log.info(f'date_token: {{{date_token}}}')
+            log.info(f'implicit default date_format: {{{DEFAULT_DATE_FORMAT}}} ')
         else:
             date_token = DEFAULT_DATE_TOKEN
-            log = logging.getLogger()
-            log.info(f'implicit default date_token: {DEFAULT_DATE_TOKEN} ')
             date_fmt = date_token_fmt
+            log = logging.getLogger()
+            log.info(f'implicit default date_token: {{{DEFAULT_DATE_TOKEN}}} ')
+            log.info(f'date_format: {{{date_fmt}}}')
 
     return (date_token, date_fmt)
 
@@ -214,11 +218,8 @@ def parse_format_date(
     offset_hours = 0 if offset_hours is None else offset_hours
     if offset_days != 0 or offset_hours != 0:
         log.info(f'applying offset_days = {offset_days}, offset_hours ={offset_hours}')
-    base_dt = datetime_offset(base_dt, offset_days, offset_hours)
-    log.info(f'offset system datetime: {base_dt.strftime("%c")}')
-
-    log.info(f'date_token: {token}')
-    log.info(f'date format: {dt_fmt}')
+        base_dt = datetime_offset(base_dt, offset_days, offset_hours)
+        log.info(f'offset system datetime: {base_dt.strftime("%c")}')
 
     ofmt = cnv_csharp_date_fmt(dt_fmt)
     my_date: date = None
