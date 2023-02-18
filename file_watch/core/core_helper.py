@@ -2,7 +2,6 @@ import pyodbc
 
 import re
 import logging
-import traceback
 import configparser
 import logging
 from pathlib import Path
@@ -63,10 +62,12 @@ def get_job_config_db(job_name: str) -> dict:
 
     log = logging.getLogger()
 
+    # read database profile from data/db.ini
     config = configparser.ConfigParser()
     ini_path = Path(__file__).parent.parent.joinpath(r'data\db.ini').resolve()
     config.read(ini_path)
 
+    # get conn_string and table from database profile
     profile: str = 'default'
     if Setting.db_profile is not None and Setting.db_profile != '':
         profile = Setting.db_profile
@@ -76,9 +77,10 @@ def get_job_config_db(job_name: str) -> dict:
     table: str = ''
     if config.has_option(profile, 'table'):
         table = config.get(profile, 'table')
-
     if conn_string == '' or table == '':
         raise ValueError(f'db_profile <{profile}>: conn_string or table is empty ')
+
+    # use regular expression to match server and database
     reg_server_db = r'server=([\w.,-]*);[\S]*database=([\w]*);'
     matches = re.findall(reg_server_db, conn_string.lower())
     if len(matches[0]) != 2:
@@ -88,7 +90,7 @@ def get_job_config_db(job_name: str) -> dict:
         raise ValueError(f'db_profile <{profile}>: db_server is empty in conn_string ')
     if database is None or database == '':
         raise ValueError(f'db_profile <{profile}>: database is empty in conn_string ')
-
+    # if schema is not provided, assuming it is dbo
     if '.' not in table:
         table = f'dbo.{table}'
 
@@ -97,7 +99,7 @@ def get_job_config_db(job_name: str) -> dict:
     log.info(f'Job config table: {table} ')
 
     conn = pyodbc.connect(conn_string)
-
+    # get job configuration from datatbase table by job_name
     try:
         cursor = conn.cursor()
         cursor.execute(f'select top 1 * from {table} where job_name = ?', job_name)
@@ -107,7 +109,7 @@ def get_job_config_db(job_name: str) -> dict:
             raise Exception(f'job_name not found in table {database}.{table} : {job_name}')
         row = results[0]
         my_dict: dict = dict(zip(columns, row))
-        # split file_name, copy_name, archive_name to list of file_names, so that file_watch can handle multiple files
+        # split file_name, copy_name, archive_name to list of strings (required for ValidJobConfig)
         if isinstance(my_dict['file_names'], str):
             my_dict['file_names'] = my_dict['file_names'].split(',')
         if isinstance(my_dict['copy_names'], str):
