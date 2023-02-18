@@ -75,10 +75,19 @@ class ValidJobConfig(BaseModel):
             raise ValueError('value must be greater of equal than len of file_names list')
         return value
 
-    @validator('sleep_time', 'look_time', 'exclude_age', always=True)
+    @validator('sleep_time', 'look_time', always=True)
     @classmethod
-    def validate_not_less_than_one(cls, value: Any) -> Any:
+    def validate_mandatory_int(cls, value: Any) -> Any:
         """these attributes won't accept a zero or negative value"""
+
+        if value is not None and value < 1:
+            raise ValueError('value must be greater or equal than 1')
+        return value
+
+    @validator('min_size', 'exclude_age')
+    @classmethod
+    def validate_optional_int(cls, value: Any) -> Any:
+        """min_size cannot be less than 1"""
 
         if value is not None and value < 1:
             raise ValueError('value must be greater or equal than 1')
