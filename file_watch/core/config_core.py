@@ -1,10 +1,10 @@
-from pydantic import BaseModel, validator, ValidationError, root_validator
+from pydantic import BaseModel, validator, root_validator
 
 import logging
-from typing import Optional, List
+from typing import Optional, List, Any
 
 from file_watch.core import core_helper
-from file_watch.helper.common import PathType, JobConfigType, JobConfigError
+from file_watch.helper.common import PathType
 
 
 def list_has_dups(my_list: list) -> bool:
@@ -21,6 +21,7 @@ def list_has_dups(my_list: list) -> bool:
 class ValidJobConfig(BaseModel):
     """Validatable job config class using Pydantic"""
 
+    job_name: str
     app_id: str
     description: Optional[str]
     file_names: List[str]
@@ -40,164 +41,148 @@ class ValidJobConfig(BaseModel):
     offset_hours: Optional[int]
 
     # derived fields must be after base fields
-    job_name: str = None
-    effective_source_path_type: PathType = None
-    effective_target_path_type: PathType = None
-    effective_archive_path_type: PathType = None
-    effective_file_names: List[str] = None
-    effective_job_config_type: JobConfigType = None
+    effective_source_path_type: PathType = PathType.NA
+    effective_target_path_type: PathType = PathType.NA
+    effective_archive_path_type: PathType = PathType.NA
+    effective_file_names: Optional[List[str]] = None
 
     @validator('app_id', always=True)
     @classmethod
-    def validate_app_id(cls, value):
+    def validate_app_id(cls, value: Any) -> Any:
         """app_id cannot be empty string"""
 
         if value is None or value == '':
-            raise JobConfigError('app_id cannot be null or empty')
+            raise ValueError('app_id cannot be null or empty')
         return value
 
     @validator('file_names', always=True)
     @classmethod
-    def validate_file_names(cls, value):
+    def validate_file_names(cls, value: Any) -> Any:
         """file_names cannot be empty string"""
 
-        # an empty string file_names [''] is a list with one empty string item
+        # an empty string file_names [''] is invalid
         if value is None or len(value) == 0 or len(value[0].strip()) == 0:
-            raise JobConfigError('file_names cannot be null or empty')
+            raise ValueError('file_names cannot be null or empty')
         return value
 
     @validator('file_count', always=True)
     @classmethod
-    def validate_file_count(cls, value, values):
+    def validate_file_count(cls, value: Any, values: Any) -> Any:
         """number of files to be expected"""
 
-        if 'file_names' in values and value < len(values['file_names']):
-            raise JobConfigError('value must be greater of equal than len of file_names list')
+        file_names = values.get('file_names')
+        if file_names is not None and value < len(file_names):
+            raise ValueError('value must be greater of equal than len of file_names list')
         return value
 
     @validator('sleep_time', 'look_time', 'exclude_age', always=True)
     @classmethod
-    def validate_not_less_than_one(cls, value):
+    def validate_not_less_than_one(cls, value: Any) -> Any:
         """these attributes won't accept a zero or negative value"""
 
         if value is not None and value < 1:
-            raise JobConfigError('value must be greater or equal than 1')
+            raise ValueError('value must be greater or equal than 1')
         return value
 
     @validator('target_path', always=True)
     @classmethod
-    def validate_target_path(cls, value, values):
+    def validate_target_path(cls, value: Any, values: dict) -> Any:
         """these target_path is required if use_copy is true"""
 
-        use_copy: bool = values.get('use_copy', False)     
+        use_copy: bool = values.get('use_copy', False)
         if use_copy and value is None:
-            raise JobConfigError('target_path is required if use_copy is true')
+            raise ValueError('target_path is required if use_copy is true')
         return value
 
     @validator('archive_path', always=True)
     @classmethod
-    def validate_archive_path(cls, value, values):
+    def validate_archive_path(cls, value: Any, values: dict) -> Any:
         """these archive_path is required if use_archive is true"""
 
-        use_archive: bool = values.get('use_archive', False)  
+        use_archive: bool = values.get('use_archive', False)
         if use_archive and value is None:
-            raise JobConfigError('archive_path is required if use_archive is true')
+            raise ValueError('archive_path is required if use_archive is true')
         return value
 
     @root_validator
     @classmethod
-    def validate_no_dup_source_path(cls, values):
+    def validate_no_dup_source_path(cls, values: dict) -> dict:
         """business logic validation"""
 
         # source, copy and archive paths can not be the same
         path_list = [values.get(item) for item in ('source_path', 'target_path', 'archive_path')]
         if list_has_dups(path_list):
-            raise JobConfigError('duplicate values in source_path, target_path or archive_path')
+            raise ValueError('duplicate values in source_path, target_path or archive_path')
 
-        # if use_copy true, copy_names should be None or same len as source_name
-        use_copy = values.get('use_copy')
-        copy_names = values.get('copy_names')
         file_names = values.get('file_names')
+        # if use_copy true, copy_names should be None or same len as source_name
+        use_copy: bool = values.get('use_copy')
+        copy_names: List[str] = values.get('copy_names')
         if use_copy and copy_names is not None and len(copy_names) != len(file_names):
-            raise JobConfigError('copy_names not the same length as file_names')
+            raise ValueError('copy_names not the same length as file_names')
 
         # if use_archive true, archive_names should be None or same len as source_name
-        use_archive = values.get('use_archive')
-        archive_names = values.get('archive_names')
-        file_names = values.get('file_names')
+        use_archive: bool = values.get('use_archive')
+        archive_names: List[str] = values.get('archive_names')
         if use_archive and archive_names is not None and len(archive_names) != len(file_names):
-            raise JobConfigError('archive_names not the same length as file_names')
+            raise ValueError('archive_names not the same length as file_names')
 
         return values
 
-    @validator('effective_source_path_type', always=True)
+    @root_validator
     @classmethod
-    def validate_effective_source_path_type(cls, value, values, **kwargs):
+    def validate_effective_source_path_type(cls, values: dict) -> dict:
         """parse path_type, this validator is required for derived fields"""
 
-        source_path = values['source_path']
-        path_type: PathType = None
-        try:
-            path_type = core_helper.validate_path_type(source_path)
-        except Exception as ex:
-            log = logging.getLogger()
-            log.error('Exception caught in validate_effective_source_path_type()')
-            raise ex
+        source_path: str = values.get('source_path')
+        path_type: PathType = core_helper.validate_path_type(source_path)
+        if path_type == PathType.NA:
+            raise ValueError('cannot derive effective_source_path_type from source_path')
 
-        if path_type is None:
-            raise JobConfigError('cannot derive source_path_type from source_path')
+        values['effective_source_path_type'] = path_type
+        return values
 
-        return path_type
-
-    @validator('effective_target_path_type', always=True)
+    @root_validator
     @classmethod
-    def validate_effective_target_path_type(cls, value, values, **kwargs):
+    def validate_effective_target_path_type(cls, values: dict) -> dict:
         """parse path_type, this validator is required for derived fields"""
 
-        use_copy = values.get('use_copy', False)   
-        target_path = values.get('target_path',None) 
-        path_type: PathType = None
+        use_copy: bool = values.get('use_copy', False)
+        target_path: str = values.get('target_path', None)
+        path_type: PathType = PathType.NA
         if use_copy:
-            try:
-                path_type = core_helper.validate_path_type(target_path)
-            except Exception as ex:
-                log = logging.getLogger()
-                log.error('Excetion caught in validate_effective_target_path_type()')
-                raise ex
-            if path_type is None:
-                raise JobConfigError('cannot derive effective_target_path_type from target_path')
-        return path_type
+            path_type = core_helper.validate_path_type(target_path)
+            if path_type == PathType.NA:
+                raise ValueError('cannot derive effective_target_path_type from target_path')
 
-    @validator('effective_archive_path_type', always=True)
+        values['effective_target_path_type'] = path_type
+        return values
+
+    @root_validator
     @classmethod
-    def validate_effective_archive_path_type(cls, value, values, **kwargs):
+    def validate_effective_archive_path_type(cls, values: dict) -> dict:
         """parse path_type, this validator is required for derived fields"""
 
-        use_archive = values.get('use_archive', False)  
-        archive_path = values.get('use_archive')  
-        path_type: PathType = None
+        use_archive = values.get('use_archive', False)
+        archive_path = values.get('archive_path')
+        path_type = PathType.NA
         if use_archive:
-            try:
-                path_type = core_helper.validate_path_type(archive_path)
-            except Exception as ex:
-                log = logging.getLogger()
-                log.error('Exception caught in validate_effective_archive_path_type()')
-                raise ex
-            if path_type is None:
-                raise JobConfigError('cannot derive effective_archive_path_type from archive_path')
+            path_type = core_helper.validate_path_type(archive_path)
+            if path_type == PathType.NA:
+                raise ValueError('cannot derive effective_archive_path_type from archive_path')
+        values['effective_archive_path_type'] = path_type
+        return values
 
-        return path_type
-
-    @validator('effective_file_names', always=True)
+    @root_validator
     @classmethod
-    def validate_effective_file_names(cls, value, values, **kwargs):
+    def validate_effective_file_names(cls, values: dict) -> dict:
         """parse list of file_names with date token and date format in it
         return values will be saved in effective_file_names
         """
+
         offset_days = values.get('offset_days')
         offset_hours = values.get('offset_hours')
         file_names = values.get('file_names')
-        print(f'############### file_names ={file_names}')
         eff_file_names = None
         if file_names is not None:
             try:
@@ -213,12 +198,15 @@ class ValidJobConfig(BaseModel):
                 raise ex
 
         if eff_file_names is None or len(file_names[0].strip()) == 0:
-            raise JobConfigError('cannot derive effective_file_names from file_names')
-        return eff_file_names
+            raise ValueError('cannot derive effective_file_names from file_names')
 
-    def print_all_variables(self):
+        values['effective_file_names'] = eff_file_names
+        return values
+
+    def print_all_variables(self) -> None:
         log = logging.getLogger()
         log.info('<< Job Config Variables >>')
+        log.info(f'{"job_name"} : {self.job_name }')
         log.info(f'{"app_id"} : {self.app_id }')
         log.info(f'{"description"} : {self.description }')
         log.info(f'{"file_names"} : {self.file_names }')
@@ -242,5 +230,4 @@ class ValidJobConfig(BaseModel):
         log.info(f'{"effective_target_path_type"} : {self.effective_target_path_type }')
         log.info(f'{"effective_archive_path_type"} : {self.effective_archive_path_type }')
         log.info(f'{"effective_file_names"} : {self.effective_file_names }')
-        log.info(f'{"effective_job_config_type"} : {self.effective_job_config_type }')
         log.info('-' * 80)

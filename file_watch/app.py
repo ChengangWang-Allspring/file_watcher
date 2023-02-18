@@ -3,7 +3,6 @@ import traceback
 import logging
 import logging.config
 from typing import List
-from datetime import datetime
 
 
 from file_watch.stage import prepare, action, cleanup
@@ -22,7 +21,7 @@ def run(argv: List[str]) -> int:
         prepare.load_job_config()
 
         # must perform watch
-        files = action.perform_watch()
+        files: List[str] = action.perform_watch()
 
         # may perform copy
         action.may_peform_copy(files)
@@ -45,4 +44,4 @@ def run(argv: List[str]) -> int:
 
 
 if __name__ == '__main__':
-    run()
+    run(sys.argv)

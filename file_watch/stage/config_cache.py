@@ -1,3 +1,5 @@
+from typing import Optional
+
 from file_watch.core.config_core import ValidJobConfig
 
-config: ValidJobConfig = None
+config: Optional[ValidJobConfig] = None

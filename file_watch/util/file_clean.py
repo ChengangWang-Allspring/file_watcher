@@ -11,6 +11,7 @@ import fnmatch
 from os import DirEntry
 from datetime import datetime, timedelta
 
+
 MAX_ERROR: int = 10
 error_count: int = 0
 remove_count: int = 0
@@ -34,7 +35,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def get_mode_date(entry: DirEntry):
+def get_mode_date(entry: DirEntry) -> datetime:
     """get modified date from DirEntry"""
     return datetime.fromtimestamp(entry.stat(follow_symlinks=False).st_mtime)
 
@@ -60,7 +61,7 @@ def match_age(age: int, entry: DirEntry) -> bool:
         return False
 
 
-def may_clean_file(entry: DirEntry, patterns: list, age: int):
+def may_clean_file(entry: DirEntry, patterns: list, age: int) -> None:
     """clean up a file only if criteria are all matched"""
 
     if not match_pattern(patterns, entry):
@@ -83,7 +84,7 @@ def may_clean_file(entry: DirEntry, patterns: list, age: int):
             raise ex  # raise error if maximun allowed error reached
 
 
-def main():
+def main() -> None:
     """main entry of file_clean"""
 
     # parse arguments

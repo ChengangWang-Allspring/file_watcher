@@ -8,11 +8,11 @@ import logging
 from pathlib import Path
 from datetime import datetime
 
-from file_watch.core import date_parser
-from file_watch.helper.common import Constant, PathType, Setting, JobConfigError, Setting
+from file_watch.core import date_core
+from file_watch.helper.common import Constant, PathType, Setting, Setting
 
 
-def parse_file_name(file_name: str, offset_days: int = None, offset_hours: int = None) -> str:
+def parse_file_name(file_name: str, offset_days: int = 0, offset_hours: int = 0) -> str:
     """parse an individual filename that contains '{<token>:<Date fmt>}'
     <Date fmt> is .NET based Date Format string. It will be converted to Python date format string
     """
@@ -22,7 +22,7 @@ def parse_file_name(file_name: str, offset_days: int = None, offset_hours: int =
     if len(token) == 0:
         return file_name
     elif len(token) > 1:
-        raise JobConfigError(f'cannot have more than one date_token_fmt variables: {file_name}')
+        raise ValueError(f'cannot have more than one date_token_fmt variables: {file_name}')
 
     date_token_fmt = token[0]
     log = logging.getLogger()
@@ -30,10 +30,10 @@ def parse_file_name(file_name: str, offset_days: int = None, offset_hours: int =
     log.info(f'parsing file_name: {file_name} ')
     log.info(f'date_token_fmt variable: {{{date_token_fmt}}}')
 
-    date_token, date_fmt = date_parser.split_date_token_fmt(date_token_fmt)
+    date_token, date_fmt = date_core.split_date_token_fmt(date_token_fmt)
 
     # get date string by token and format
-    parsed_date_str = date_parser.parse_format_date(
+    parsed_date_str = date_core.parse_format_date(
         datetime.now(), date_token, date_fmt, offset_days, offset_hours
     )
     parsed_file_name = file_name.replace('{' + date_token_fmt + '}', parsed_date_str)
@@ -55,7 +55,7 @@ def validate_path_type(my_path: str) -> PathType:
     elif local_path and len(local_path) > 0:
         return PathType.LOCAL_PATH
     else:
-        raise JobConfigError(f'not a valid path: {my_path}')
+        return PathType.NA
 
 
 def get_job_config_db(job_name: str) -> dict:
@@ -70,24 +70,24 @@ def get_job_config_db(job_name: str) -> dict:
     profile: str = 'default'
     if Setting.db_profile is not None and Setting.db_profile != '':
         profile = Setting.db_profile
-    conn_string: str = None
+    conn_string: str = ''
     if config.has_option(profile, 'conn_string'):
         conn_string = config.get(profile, 'conn_string')
-    table: str = None
+    table: str = ''
     if config.has_option(profile, 'table'):
         table = config.get(profile, 'table')
 
-    if conn_string is None or table is None:
-        raise JobConfigError(f'db_profile <{profile}>: conn_string or table is empty ')
+    if conn_string == '' or table == '':
+        raise ValueError(f'db_profile <{profile}>: conn_string or table is empty ')
     reg_server_db = r'server=([\w.,-]*);[\S]*database=([\w]*);'
     matches = re.findall(reg_server_db, conn_string.lower())
     if len(matches[0]) != 2:
-        raise JobConfigError(f'db_profile <{profile}>: errors in database conn_string in db.ini')
+        raise ValueError(f'db_profile <{profile}>: errors in database conn_string in db.ini')
     server, database = matches[0]
     if server is None or server == '':
-        raise JobConfigError(f'db_profile <{profile}>: db_server is empty in conn_string ')
+        raise ValueError(f'db_profile <{profile}>: db_server is empty in conn_string ')
     if database is None or database == '':
-        raise JobConfigError(f'db_profile <{profile}>: database is empty in conn_string ')
+        raise ValueError(f'db_profile <{profile}>: database is empty in conn_string ')
 
     if '.' not in table:
         table = f'dbo.{table}'
@@ -104,7 +104,7 @@ def get_job_config_db(job_name: str) -> dict:
         columns = [column[0] for column in cursor.description]
         results = cursor.fetchall()
         if len(results) == 0:
-            raise JobConfigError(f'job_name not found in table {database}.{table} : {job_name}')
+            raise Exception(f'job_name not found in table {database}.{table} : {job_name}')
         row = results[0]
         my_dict: dict = dict(zip(columns, row))
         # split file_name, copy_name, archive_name to list of file_names, so that file_watch can handle multiple files

@@ -7,7 +7,7 @@ from datetime import datetime
 from typing import List
 
 from file_watch.helper import common
-from file_watch.helper.common import Setting, JobConfigType, PathType, Constant
+from file_watch.helper.common import Setting, Constant
 from file_watch.core.config_factory import ConfigFactory
 from file_watch.core.config_core import ValidJobConfig
 from file_watch.stage import config_cache
@@ -36,7 +36,7 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     return parser.parse_args(argv[1:])
 
 
-def parse_args_to_settings(argv: List[str]):
+def parse_args_to_settings(argv: List[str]) -> None:
     """parse command arguments into setting"""
 
     args = parse_args(argv)
@@ -45,7 +45,7 @@ def parse_args_to_settings(argv: List[str]):
     Setting.db_profile = args.db_profile
 
 
-def config_logging():
+def config_logging() -> None:
     """configure logging"""
 
     print('Configuring logger ...')
@@ -65,7 +65,7 @@ def config_logging():
         handler.setLevel(level)
 
 
-def load_job_config():
+def load_job_config() -> None:
     """load job config, if validated, print all job variables"""
 
     log = logging.getLogger()
@@ -75,8 +75,6 @@ def load_job_config():
     config_dict: dict = ConfigFactory.get_config_dict(Setting.job_name, Setting.job_config_type)
 
     config = config_cache.config = ValidJobConfig(**config_dict)
-    config.job_name = Setting.job_name
-
     log.info(f'Initializing file watcher ...')
 
     Setting.print_log()

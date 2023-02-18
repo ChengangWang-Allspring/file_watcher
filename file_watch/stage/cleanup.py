@@ -4,7 +4,7 @@ import logging
 from file_watch.helper.common import Setting
 
 
-def cleanup():
+def cleanup() -> None:
     log = logging.getLogger()
     now = datetime.now().strftime('%c')
     log.info(

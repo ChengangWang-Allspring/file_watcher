@@ -1,10 +1,8 @@
 from datetime import datetime, date, timedelta
-from typing import Dict, Callable, Tuple
+from typing import Dict, Callable, Tuple, Optional
 import holidays
 import logging
 import traceback
-
-from file_watch.helper.common import JobConfigError
 
 
 DEFAULT_DATE_TOKEN = 'today'
@@ -43,11 +41,11 @@ _FORMAT_MAP = (
 )
 
 
-def cnv_csharp_date_fmt(in_fmt):
+def cnv_csharp_date_fmt(in_fmt: str) -> str:
     """convert .NET date format to Python strftime date format"""
 
-    ofmt = ''
-    fmt = in_fmt
+    ofmt: str = ''
+    fmt: str = in_fmt
     while fmt:
         if fmt[0] == "'":
             # literal text enclosed in ''
@@ -207,7 +205,11 @@ def split_date_token_fmt(date_token_fmt: str) -> Tuple[str, str]:
 
 
 def parse_format_date(
-    base_dt: datetime, token: str, dt_fmt: str, offset_days: int = None, offset_hours: int = None
+    base_dt: datetime,
+    token: str,
+    dt_fmt: str,
+    offset_days: Optional[int] = 0,
+    offset_hours: Optional[int] = 0,
 ) -> str:
     """parse date token and output formatted date string"""
 
@@ -222,21 +224,21 @@ def parse_format_date(
         log.info(f'offset system datetime: {base_dt.strftime("%c")}')
 
     ofmt = cnv_csharp_date_fmt(dt_fmt)
-    my_date: date = None
+    my_date: Optional[date] = None
     if token.lower() in date_token_dict.keys():
         try:
             my_date = date_token_dict[token.lower()](base_dt)
         except Exception as e:
             log.error(f'date token transformation error: {e}')
             log.debug(traceback.format_exc())
-            raise JobConfigError(f'date token transformation error: {e}')
+            raise ValueError(f'date token transformation error: {e}')
     else:
         log.error(f'date token is not valid. {token}')
         log.error(f'valid token list: {date_token_dict.keys()}')
-        raise JobConfigError(f'date token is not valid. {token}')
+        raise ValueError(f'date token is not valid. {token}')
 
     if my_date is None:
-        raise JobConfigError(f'date string transformation error')
+        raise ValueError(f'date string transformation error')
 
     date_string = my_date.strftime(ofmt)
     log.info(f'transformed date_string: {date_string}')

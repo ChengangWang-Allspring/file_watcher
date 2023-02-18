@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from file_watch.helper.common import JobConfigType, JobConfigError
+from file_watch.helper.common import JobConfigType
 from file_watch.helper import file_helper
 from file_watch.core import core_helper
 
@@ -30,7 +30,7 @@ class CsvConfig(ConfigBase):
 
     # overriding abstract method
     def get_config_dict(self) -> dict:
-        raise JobConfigError('CsvConfig not implemented in this release')
+        raise Exception('CsvConfig not implemented in this release')
 
 
 class DbConfig(ConfigBase):
@@ -48,7 +48,7 @@ class ConfigFactory:
     def get_config_dict(job_name: str, job_config_type: JobConfigType) -> dict:
         match job_config_type:
             case JobConfigType.YML_CONFIG:
-                config = YmlConfig(job_name)
+                config: ConfigBase = YmlConfig(job_name)
             case JobConfigType.CSV_CONFIG:
                 config = CsvConfig(job_name)
             case JobConfigType.DB_CONFIG:

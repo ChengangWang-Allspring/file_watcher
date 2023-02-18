@@ -1,20 +1,18 @@
-import yaml
-
-import argparse
 import logging
 import fnmatch
 import time
-import os
+
 from datetime import datetime
 from datetime import timedelta
+from typing import List
 
-from file_watch.helper.common import PathType, JobConfigError
+from file_watch.helper.common import PathType
 from file_watch.helper import file_helper
 from file_watch.core.config_core import ValidJobConfig
 from file_watch.stage import config_cache
 
 
-def perform_watch() -> list:
+def perform_watch() -> List[str]:
     """File Watch primary while loop Logic"""
 
     log = logging.getLogger()
@@ -75,8 +73,8 @@ def perform_watch() -> list:
                     if old_date_dict[file] != date_dict[file]:
                         old_date_dict[file] = date_dict[file]
                         keep_waiting = True
-                    if old_size_dict[file] != date_dict[file]:
-                        old_size_dict[file] = date_dict[file]
+                    if old_size_dict[file] != size_dict[file]:
+                        old_size_dict[file] = size_dict[file]
                         keep_waiting = True
 
             log.info('Files are stable (OK) ')
@@ -95,7 +93,7 @@ def perform_watch() -> list:
                 raise TimeoutError('Maximum polling times reached!')
 
 
-def may_peform_copy(file_list: list):
+def may_peform_copy(file_list: List[str]) -> None:
     """copy files from effective source to effective target location"""
 
     config = config_cache.config
@@ -111,7 +109,7 @@ def may_peform_copy(file_list: list):
         log.info('=' * 80)
 
 
-def may_perform_archive(file_list: list):
+def may_perform_archive(file_list: list) -> None:
     """archive files from effective source to effective archive location"""
 
     config = config_cache.config

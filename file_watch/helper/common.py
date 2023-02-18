@@ -2,6 +2,7 @@ import logging
 from enum import Enum, auto
 from pathlib import Path
 from datetime import datetime
+from typing import Optional
 
 
 class Constant:
@@ -48,18 +49,13 @@ class Constant:
     """
 
 
-class JobConfigError(Exception):
-    """custom job config error"""
-
-    pass
-
-
 class JobConfigType(Enum):
     """Job config types that are currently supported"""
 
     YML_CONFIG = auto()
     CSV_CONFIG = auto()
     DB_CONFIG = auto()
+    NA = auto()
 
 
 class PathType(Enum):
@@ -68,6 +64,7 @@ class PathType(Enum):
     LOCAL_PATH = auto()
     UNC_PATH = auto()
     S3_PATH = auto()
+    NA = auto()
 
 
 class Setting:
@@ -78,13 +75,13 @@ class Setting:
     job_config_type: JobConfigType = JobConfigType.DB_CONFIG
 
     debug: bool = False
-    db_profile: str = None
-    job_name: str = None
-    log_file_path: str = None
+    db_profile: Optional[str] = None
+    job_name: Optional[str] = None
+    log_file_path: Optional[str] = None
     # job_config_path: str = None
 
     @classmethod
-    def print_log(cls):
+    def print_log(cls) -> None:
         log = logging.getLogger()
         log.info('<< Global settings >>')
         log.info(f'{"debug"} : {Setting.debug }')
@@ -93,18 +90,18 @@ class Setting:
         log.info(f'{"log_file_path"} : {Setting.log_file_path }')
 
 
-def get_yml_file_path(job_name: str):
+def get_yml_file_path(job_name: str) -> str:
     """get job yml config's absolute path"""
 
     # go up 2 levels relatively (to the root folder)
     path = Path(__file__).parent.parent
-    path = path.joinpath(Constant.DATA_YML_RELATIVE_PATH).joinpath(f'{job_name}.yml')
-    return path
+    path = path.joinpath(Constant.DATA_YML_RELATIVE_PATH).joinpath(f'{job_name}.yml').resolve()
+    return str(path)
 
 
-def get_log_file_path(job_name: str):
+def get_log_file_path(job_name: str) -> str:
     # get logs absolute path from this module's path
     path = Path(__file__).parent.parent
     str_date = datetime.today().strftime('%Y-%m-%d')
-    path = path.joinpath(Constant.LOGS_RELATIVE_PATH).joinpath(f'{job_name}_{str_date}.log')
-    return path
+    path = path.joinpath(Constant.LOGS_RELATIVE_PATH).joinpath(f'{job_name}_{str_date}.log').resolve()
+    return str(path)
