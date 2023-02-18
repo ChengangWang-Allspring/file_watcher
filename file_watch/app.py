@@ -6,7 +6,6 @@ from typing import List
 
 
 from file_watch.stage import prepare, action, cleanup
-from file_watch.helper.common import Setting
 
 
 def run(argv: List[str]) -> int:

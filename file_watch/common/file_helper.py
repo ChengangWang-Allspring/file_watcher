@@ -9,20 +9,19 @@ from datetime import datetime
 from typing import Tuple, List, Dict
 
 
-from file_watch.helper import common
-from file_watch.helper.common import PathType
+from file_watch.common import enum_const
+from file_watch.common.enum_const import PathType, Constant
 from file_watch.core.config_core import ValidJobConfig
 
 
-def read_yml_config(job_name: str) -> dict:
-    try:
-        yml_config_path = common.get_yml_file_path(job_name)
-        with open(yml_config_path, 'r') as f:
-            config_dict = yaml.safe_load(f)
-        return config_dict
-    except Exception as ex:
-        ex.add_note(f'Error reading job config yml file: {yml_config_path}')
-        raise ex
+def get_log_file_path(job_name: str) -> str:
+    # get logs absolute path from this module's path
+    path = Path(__file__).parent.parent
+    str_date = datetime.today().strftime('%Y-%m-%d')
+    path = (
+        path.joinpath(Constant.LOGS_RELATIVE_PATH).joinpath(f'{job_name}_{str_date}.log').resolve()
+    )
+    return str(path)
 
 
 def last_modified(file_name: str, source_path: str) -> datetime:

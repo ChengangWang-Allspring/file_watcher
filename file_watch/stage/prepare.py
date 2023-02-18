@@ -1,13 +1,13 @@
 import yaml
 
-import sys
 import argparse
 import logging
 from datetime import datetime
 from typing import List
 
-from file_watch.helper import common
-from file_watch.helper.common import Setting, Constant
+from file_watch.common import file_helper
+from file_watch.common.enum_const import Constant, JobConfigType
+from file_watch.common.setting import Setting
 from file_watch.core.config_factory import ConfigFactory
 from file_watch.core.config_core import ValidJobConfig
 from file_watch.stage import config_cache
@@ -50,7 +50,7 @@ def config_logging() -> None:
 
     print('Configuring logger ...')
     log_config = yaml.safe_load(Constant.LOGGING_YML)
-    Setting.log_file_path = common.get_log_file_path(Setting.job_name)
+    Setting.log_file_path = file_helper.get_log_file_path(Setting.job_name)
     log_config['handlers']['file']['filename'] = Setting.log_file_path
     # overide logger's filename with <job_name> and date string embedded name
     logging.config.dictConfig(log_config)
@@ -71,8 +71,7 @@ def load_job_config() -> None:
     log = logging.getLogger()
     log.info('Parsing job configuration ... ')
 
-    # Setting.job_config_path = common.get_yml_file_path(Setting.job_name)
-    config_dict: dict = ConfigFactory.get_config_dict(Setting.job_name, Setting.job_config_type)
+    config_dict: dict = ConfigFactory.get_config_dict(Setting.job_name, JobConfigType.DB_CONFIG)
 
     config = config_cache.config = ValidJobConfig(**config_dict)
     log.info(f'Initializing file watcher ...')

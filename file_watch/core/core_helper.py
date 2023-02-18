@@ -8,7 +8,8 @@ from pathlib import Path
 from datetime import datetime
 
 from file_watch.core import date_core
-from file_watch.helper.common import Constant, PathType, Setting, Setting
+from file_watch.common.enum_const import Constant, PathType
+from file_watch.common.setting import Setting
 
 
 def parse_file_name(file_name: str, offset_days: int = 0, offset_hours: int = 0) -> str:
@@ -54,7 +55,7 @@ def validate_path_type(my_path: str) -> PathType:
     elif local_path and len(local_path) > 0:
         return PathType.LOCAL_PATH
     else:
-        return PathType.NA
+        return PathType.NONE
 
 
 def get_job_config_db(job_name: str) -> dict:
@@ -64,7 +65,11 @@ def get_job_config_db(job_name: str) -> dict:
 
     # read database profile from data/db.ini
     config = configparser.ConfigParser()
-    ini_path = Path(__file__).parent.parent.joinpath(r'data\db.ini').resolve()
+    ini_path = (
+        Path(__file__)
+        .parent.parent.joinpath(f'{Constant.CONFIG_RELATIVE_PATH}/{Constant.DATABASE_INI}')
+        .resolve()
+    )
     config.read(ini_path)
 
     # get conn_string and table from database profile

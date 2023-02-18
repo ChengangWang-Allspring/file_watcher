@@ -4,7 +4,7 @@ import logging
 from typing import Optional, List, Any
 
 from file_watch.core import core_helper
-from file_watch.helper.common import PathType
+from file_watch.common.enum_const import PathType
 
 
 def list_has_dups(my_list: list) -> bool:
@@ -41,9 +41,9 @@ class ValidJobConfig(BaseModel):
     offset_hours: Optional[int]
 
     # derived fields must be after base fields
-    effective_source_path_type: PathType = PathType.NA
-    effective_target_path_type: PathType = PathType.NA
-    effective_archive_path_type: PathType = PathType.NA
+    effective_source_path_type: PathType = PathType.NONE
+    effective_target_path_type: PathType = PathType.NONE
+    effective_archive_path_type: PathType = PathType.NONE
     effective_file_names: Optional[List[str]] = None
 
     @validator('app_id', always=True)
@@ -145,7 +145,7 @@ class ValidJobConfig(BaseModel):
 
         source_path: str = values.get('source_path')
         path_type: PathType = core_helper.validate_path_type(source_path)
-        if path_type == PathType.NA:
+        if path_type == PathType.NONE:
             raise ValueError('cannot derive effective_source_path_type from source_path')
 
         values['effective_source_path_type'] = path_type
@@ -158,10 +158,10 @@ class ValidJobConfig(BaseModel):
 
         use_copy: bool = values.get('use_copy', False)
         target_path: str = values.get('target_path', None)
-        path_type: PathType = PathType.NA
+        path_type: PathType = PathType.NONE
         if use_copy:
             path_type = core_helper.validate_path_type(target_path)
-            if path_type == PathType.NA:
+            if path_type == PathType.NONE:
                 raise ValueError('cannot derive effective_target_path_type from target_path')
 
         values['effective_target_path_type'] = path_type
@@ -174,10 +174,10 @@ class ValidJobConfig(BaseModel):
 
         use_archive = values.get('use_archive', False)
         archive_path = values.get('archive_path')
-        path_type = PathType.NA
+        path_type = PathType.NONE
         if use_archive:
             path_type = core_helper.validate_path_type(archive_path)
-            if path_type == PathType.NA:
+            if path_type == PathType.NONE:
                 raise ValueError('cannot derive effective_archive_path_type from archive_path')
         values['effective_archive_path_type'] = path_type
         return values

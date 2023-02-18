@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
-from file_watch.helper.common import JobConfigType
-from file_watch.helper import file_helper
+from file_watch.common.enum_const import JobConfigType
+from file_watch.common import file_helper
 from file_watch.core import core_helper
 
 
@@ -21,8 +21,7 @@ class YmlConfig(ConfigBase):
 
     # overriding abstract method
     def get_config_dict(self) -> dict:
-        # read yaml file into dictionary
-        return file_helper.read_yml_config(self.job_name)
+        raise Exception('YmlConfig not implemented in this release')
 
 
 class CsvConfig(ConfigBase):

@@ -1,7 +1,7 @@
 from datetime import datetime
 import logging
 
-from file_watch.helper.common import Setting
+from file_watch.common.setting import Setting
 
 
 def cleanup() -> None:

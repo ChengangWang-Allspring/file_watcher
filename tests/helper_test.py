@@ -2,10 +2,10 @@ import pytest
 from pathlib import Path
 from datetime import datetime
 
-from file_watch.helper import common
+from file_watch.common import file_helper
 from file_watch.core import core_helper
-from file_watch.helper.common import PathType
-from file_watch.helper import file_helper
+from file_watch.common.enum_const import PathType
+from file_watch.common import file_helper
 
 
 @pytest.fixture
@@ -27,7 +27,7 @@ def test_get_log_file_path():
     home = Path(__file__).parent.parent
     log_path = home.joinpath(f'file_watch/logs/{job_name}_{str_date}.log').resolve()
 
-    assert common.get_log_file_path('test_job') == str(log_path)
+    assert file_helper.get_log_file_path('test_job') == str(log_path)
 
 
 @pytest.mark.helper_test
@@ -57,7 +57,7 @@ def test_parse_file_name(patch_datetime_now, txt_input, expected):
         (r'C:\cwang\test', PathType.LOCAL_PATH),
         ('s3://mybucket/mypath', PathType.S3_PATH),
         (r'\\myshare\apps$\myfolder', PathType.UNC_PATH),
-        (r'adb:\wgdg$!@#$$%', PathType.NA),
+        (r'adb:\wgdg$!@#$$%', PathType.NONE),
     ],
 )
 def test_validate_path_type(txt_input, expected):

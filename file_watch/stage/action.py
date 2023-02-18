@@ -6,8 +6,8 @@ from datetime import datetime
 from datetime import timedelta
 from typing import List
 
-from file_watch.helper.common import PathType
-from file_watch.helper import file_helper
+from file_watch.common.enum_const import PathType
+from file_watch.common import file_helper
 from file_watch.core.config_core import ValidJobConfig
 from file_watch.stage import config_cache
 
