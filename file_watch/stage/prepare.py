@@ -65,6 +65,12 @@ def config_logging() -> None:
         handler.setLevel(level)
 
 
+def welcome() -> None:
+    log = logging.getLogger()
+    log.info(Constant.ASCII_ART)
+    log.info('Welcome to use the "file_watch" application!')
+
+
 def load_job_config() -> None:
     """load job config, if validated, print all job variables"""
 
@@ -73,7 +79,7 @@ def load_job_config() -> None:
 
     config_dict: dict = ConfigFactory.get_config_dict(Setting.job_name, JobConfigType.DB_CONFIG)
 
-    config = config_cache.config = ValidJobConfig(**config_dict)
+    config_cache.config = ValidJobConfig(**config_dict)
     log.info(f'Initializing file watcher ...')
 
     Setting.print_log()
@@ -82,4 +88,4 @@ def load_job_config() -> None:
     now = datetime.now().strftime('%c')
     log.info(f'<<<<< File Watcher Job ({Setting.job_name}) -- Started at ( {now} ) >>>>> ')
     log.info('=' * 80)
-    config.print_all_variables()
+    config_cache.config.print_all_variables()

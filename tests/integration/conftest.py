@@ -1,84 +1,65 @@
 import pytest
+import boto3
 
-import shutil
+import os
 from pathlib import Path
 
-DATA_FIXTURE_PATH = 'data/fixtures'
-LOCAL_INBOUND_PATH = 'data/inbound'
-LOCAL_SOURCE_PATH = 'data/source'
-LOCAL_ARCHIVE_PATH = 'data/archive'
+from file_watch.common import s3_helper
+
+LOCAL_SOURCE_PATH = r'c:\temp\tests\integration\source'
+LOCAL_INBOUND_PATH = r'c:\temp\tests\integration\inbound'
+LOCAL_ARCHIVE_PATH = r'c:\temp\tests\integration\archive'
 
 S3_SOURCE_PATH = 's3://s3-agtps01-use-dev/tests/integration/source/'
 S3_INBOUND_PATH = 's3://s3-agtps01-use-dev/tests/integration/inbound/'
 S3_ARCHIVE_PATH = 's3://s3-agtps01-use-dev/tests/integration/archive/'
 
-FILE_NAMES_WITH_SYSDATE = ('dummy_20220621_a.dat', 'dummy_20220621_b.dat')
+
+def reset_local_folders(local_path_str: str):
+    my_path = Path(local_path_str)
+    if my_path.exists():
+        print(f'############# attempt to clean up files in local path: {local_path_str}')
+        for f in os.listdir(local_path_str):
+            os.remove(str(my_path.joinpath(f).resolve()))
+    else:
+        my_path.mkdir(parents=True, exist_ok=True)
 
 
-def setup_local_folders():
-    """setup local folders needed for file_watch integration testing"""
-    base_path = Path(__file__).parent
-    inbound_path = base_path.joinpath(LOCAL_INBOUND_PATH)
-    source_path = base_path.joinpath(LOCAL_SOURCE_PATH)
-    archive_path = base_path.joinpath(LOCAL_ARCHIVE_PATH)
+def reset_all_local_folders():
+    """reset local folders needed for file_watch integration testing"""
 
-    print('attempt to clean up local paths and recreate ... ')
-    try:
-        print(f'inbound_path: {inbound_path}')
-        shutil.rmtree(inbound_path)
-    except Exception as e:
-        print(e)
-    finally:
-        inbound_path.mkdir()
-
-    try:
-        print(f'source_path: {source_path}')
-        shutil.rmtree(source_path)
-    except Exception as e:
-        print(e)
-    finally:
-        source_path.mkdir()
-
-    try:
-        print(f'archive_path: {archive_path}')
-        shutil.rmtree(archive_path)
-    except Exception as e:
-        print(e)
-    finally:
-        archive_path.mkdir()
+    reset_local_folders(LOCAL_SOURCE_PATH)
+    reset_local_folders(LOCAL_INBOUND_PATH)
+    reset_local_folders(LOCAL_ARCHIVE_PATH)
 
 
-def destroy_local_folders():
-    """destroy local folders after testing is done"""
-    base_path = Path(__file__).parent
-    inbound_path = base_path.joinpath(LOCAL_INBOUND_PATH)
-    source_path = base_path.joinpath(LOCAL_SOURCE_PATH)
-    archive_path = base_path.joinpath(LOCAL_ARCHIVE_PATH)
+def reset_s3_folder(s3_uri: str):
+    """reset s3 bucket folders needed for file_watch integration testing"""
 
-    print('destroying local paths')
-    try:
-        print(f'inbound_path: {inbound_path}')
-        shutil.rmtree(inbound_path)
-    except Exception as e:
-        print(e)
-
-    try:
-        print(f'source_path: {source_path}')
-        shutil.rmtree(source_path)
-    except Exception as e:
-        print(e)
-
-    try:
-        print(f'archive_path: {archive_path}')
-        shutil.rmtree(archive_path)
-    except Exception as e:
-        print(e)
+    s3 = boto3.client('s3')
+    print(f'############# attempt to clean up files in s3 url: {s3_uri}')
+    bucket, prefix = s3_helper.get_s3_bucket_prefix_by_uri(s3_uri)
+    response = s3.list_objects_v2(Bucket=bucket, Prefix=prefix)
+    if 'Contents' in response:
+        for object in response['Contents']:
+            print('############# Deleting', object['Key'])
+            s3.delete_object(Bucket=bucket, Key=object['Key'])
 
 
-@pytest.fixture(scope="session", autouse=True)
+def reset_all_s3_folders():
+    reset_s3_folder(S3_SOURCE_PATH)
+    reset_s3_folder(S3_INBOUND_PATH)
+    reset_s3_folder(S3_ARCHIVE_PATH)
+
+
+@pytest.fixture(scope="function", autouse=True)
 def auto_resource():
-    setup_local_folders()
+    print('')  # extra line break to seperate for pytest message
+    reset_all_local_folders()
+    reset_all_s3_folders()
 
     yield
 
-    destroy_local_folders()
+    print('')  # extra line break so that PASSED is easy to see
+    reset_all_local_folders()
+    reset_all_s3_folders()

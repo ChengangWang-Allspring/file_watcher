@@ -5,7 +5,7 @@ import logging.config
 from typing import List
 
 
-from file_watch.stage import prepare, action, cleanup
+from file_watch.stage import finish, prepare, action
 
 
 def run(argv: List[str]) -> int:
@@ -15,6 +15,9 @@ def run(argv: List[str]) -> int:
 
         # config logging
         prepare.config_logging()
+
+        # welcome
+        prepare.welcome()
 
         # initialize job config along with logger
         prepare.load_job_config()
@@ -28,8 +31,11 @@ def run(argv: List[str]) -> int:
         # may perform archive
         action.may_perform_archive(files)
 
+        # verify files
+        finish.verify(files)
+
         # cleanup
-        cleanup.cleanup()
+        finish.cleanup()
 
         return 0
 

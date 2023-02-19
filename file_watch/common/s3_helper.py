@@ -26,6 +26,8 @@ def get_files_on_s3(
         obj_list = []
         page_index = 0
         for page in pages:
+            if 'Contents' not in page:
+                continue
             contents = page['Contents']
             page_index += 1
             log.debug(f'page_index: {page_index }, Files count: {len(contents)}')
@@ -86,3 +88,18 @@ def copy_files_local_2_s3(source_file_path: str, dest_bucket: str, dest_key: str
 
     s3 = boto3.resource('s3')
     s3.meta.client.upload_file(source_file_path, dest_bucket, dest_key)
+
+
+def verify_s3_files(file_names: List[str], s3_uri: str) -> bool:
+    s3 = boto3.client('s3')
+    bucket, prefix = get_s3_bucket_prefix_by_uri(s3_uri)
+    for file_name in file_names:
+        reponse = s3.list_objects_v2(Bucket=bucket, Prefix=f'{prefix}/{file_name}')
+        if len(reponse['Contents']) >= 1:
+            continue
+        else:
+            log = logging.getLogger()
+            log.debug(f'file dos not exist in "{s3_uri}": {file_name}')
+            return False
+
+    return True

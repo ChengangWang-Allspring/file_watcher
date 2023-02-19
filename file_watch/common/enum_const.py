@@ -45,6 +45,15 @@ class Constant:
       handlers: [console,file]
     """
 
+    # Ascii art
+    ASCII_ART = """
+            __   _   _                               _            _     
+           / _| (_) | |   ___    __      __   __ _  | |_    ___  | |__  
+          | |_  | | | |  / _ \   \ \ /\ / /  / _` | | __|  / __| | '_ \ 
+          |  _| | | | | |  __/    \ V  V /  | (_| | | |_  | (__  | | | |
+          |_|   |_| |_|  \___|     \_/\_/    \__,_|  \__|  \___| |_| |_|
+    """
+
 
 class JobConfigType(Enum):
     """Job config types that are currently supported"""
@@ -62,3 +71,9 @@ class PathType(Enum):
     UNC_PATH = auto()
     S3_PATH = auto()
     NONE = auto()
+
+
+class JobVerifyError(Exception):
+    """custom exception when verification fails"""
+
+    pass

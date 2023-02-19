@@ -39,7 +39,9 @@ def get_file_size(file_name: str, source_path: str) -> int:
     return stats.st_size
 
 
-def get_files_dicts_on_local(source_path: str) -> Tuple[List[str], Dict[str, datetime], Dict[str, int]]:
+def get_files_dicts_on_local(
+    source_path: str,
+) -> Tuple[List[str], Dict[str, datetime], Dict[str, int]]:
     """get files from local or UNC path"""
 
     file_names = os.listdir(source_path)
@@ -162,6 +164,18 @@ def archive_file_by_path_type(config: ValidJobConfig, file_name: str) -> None:
             source_file_path = Path(config.source_path).joinpath(file_name).resolve()
             archive_file_path = Path(config.archive_path).joinpath(file_name).resolve()
             copy_files_local_2_local(str(source_file_path), str(archive_file_path))
+
+
+def verify_local_files(file_names: List[str], file_path: str) -> bool:
+    for file_name in file_names:
+        if Path(file_path).joinpath(file_name).is_file():
+            continue
+        else:
+            log = logging.getLogger()
+            log.debug(f'file dos not exist in "{file_path}": {file_names}')
+            return False
+
+    return True
 
 
 def archive_files(config: ValidJobConfig, files: list) -> None:
