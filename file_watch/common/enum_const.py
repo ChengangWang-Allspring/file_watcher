@@ -7,10 +7,11 @@ class Constant:
     CONFIG_RELATIVE_PATH = 'config'
     LOGS_RELATIVE_PATH = 'logs'
     DATABASE_INI = 'db.ini'
+    CLEANUP_LOG_AGE = 2  # log aged in ?? days to be cleaned up
 
     REGEX_S3_URI: str = r'^s3://([^/]+)/(.*?[^/]+/?)$'
     REGEX_UNC: str = r'^\\\\([a-zA-Z0-9_.$-]+\\[a-zA-Z0-9_.$-\\]+)$'
-    REGEX_LOCAL: str = r'^[a-zA-Z]:\\(?:\w+\\?)*$'
+    REGEX_LOCAL: str = r'^[a-zA-Z]:\\(?:[\w-]+\\?)*$'
 
     # file-name regex that accept one optional variable
     # that's wrapped in curly bracket {dt_token:dt_fmt}
