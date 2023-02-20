@@ -6,9 +6,8 @@ from datetime import datetime
 from datetime import timedelta
 from typing import List
 
-from file_watch.common.enum_const import PathType
+from file_watch.common.enum_const import Constant
 from file_watch.common import file_helper
-from file_watch.core.config_core import ValidJobConfig
 from file_watch.stage import config_cache
 
 
@@ -66,7 +65,7 @@ def perform_watch() -> List[str]:
 
             keep_waiting = True
             while keep_waiting:
-                time.sleep(5)
+                time.sleep(Constant.FILE_STABLIZE_INTERVAL)
                 files, date_dict, size_dict = file_helper.get_files(config)
                 keep_waiting = False
                 for file in match:

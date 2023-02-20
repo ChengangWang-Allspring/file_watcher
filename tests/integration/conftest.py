@@ -6,6 +6,7 @@ from pathlib import Path
 
 from file_watch.common import s3_helper
 
+LOCAL_TEMP_PATH = r'c:\temp\tests\integration\temp'
 LOCAL_SOURCE_PATH = r'c:\temp\tests\integration\source'
 LOCAL_INBOUND_PATH = r'c:\temp\tests\integration\inbound'
 LOCAL_ARCHIVE_PATH = r'c:\temp\tests\integration\archive'
@@ -31,6 +32,7 @@ def reset_all_local_folders():
     reset_local_folders(LOCAL_SOURCE_PATH)
     reset_local_folders(LOCAL_INBOUND_PATH)
     reset_local_folders(LOCAL_ARCHIVE_PATH)
+    reset_local_folders(LOCAL_TEMP_PATH)
 
 
 def reset_s3_folder(s3_uri: str):

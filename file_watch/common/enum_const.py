@@ -4,6 +4,8 @@ from enum import Enum, auto
 class Constant:
     """constants that would never change"""
 
+    FILE_STABLIZE_INTERVAL: int = 2
+
     CONFIG_RELATIVE_PATH = 'config'
     LOGS_RELATIVE_PATH = 'logs'
     DATABASE_INI = 'db.ini'

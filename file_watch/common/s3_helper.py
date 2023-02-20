@@ -1,6 +1,7 @@
 import boto3
 
 import logging
+import time
 from datetime import datetime
 from typing import Tuple, List, Dict
 
@@ -91,11 +92,12 @@ def copy_files_local_2_s3(source_file_path: str, dest_bucket: str, dest_key: str
 
 
 def verify_s3_files(file_names: List[str], s3_uri: str) -> bool:
+    time.sleep(1)  # wait 1 second, s3 bucket file index sometime slow to refresh
     s3 = boto3.client('s3')
     bucket, prefix = get_s3_bucket_prefix_by_uri(s3_uri)
     for file_name in file_names:
-        reponse = s3.list_objects_v2(Bucket=bucket, Prefix=f'{prefix}/{file_name}')
-        if len(reponse['Contents']) >= 1:
+        response = s3.list_objects_v2(Bucket=bucket, Prefix=f'{prefix}{file_name}')
+        if 'Contents' in response and len(response['Contents']) >= 1:
             continue
         else:
             log = logging.getLogger()
