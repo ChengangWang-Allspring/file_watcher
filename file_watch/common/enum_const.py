@@ -4,7 +4,7 @@ from enum import Enum, auto
 class Constant:
     """constants that would never change"""
 
-    FILE_STABLIZE_INTERVAL: int = 2
+    FILE_STABLIZE_INTERVAL: int = 2  # wait interval in seconds for file stabilize
 
     CONFIG_RELATIVE_PATH = 'config'
     LOGS_RELATIVE_PATH = 'logs'
@@ -48,15 +48,26 @@ class Constant:
     """
 
     # Ascii art
-    ASCII_ART = r"""
+    ASCII_ART_LOGO = r"""
+        __ _ _                      _       _     
+       / _(_) | ___  __      ____ _| |_ ___| |__  
+      | |_| | |/ _ \ \ \ /\ / / _` | __/ __| '_ \ 
+      |  _| | |  __/  \ V  V / (_| | || (__| | | |
+      |_| |_|_|\___|   \_/\_/ \__,_|\__\___|_| |_|
+    """
 
-           ______ _ _       __          __   _       _     
-          |  ____(_) |      \ \        / /  | |     | |    
-          | |__   _| | ___   \ \  /\  / /_ _| |_ ___| |__  
-          |  __| | | |/ _ \   \ \/  \/ / _` | __/ __| '_ \ 
-          | |    | | |  __/    \  /\  / (_| | || (__| | | |
-          |_|    |_|_|\___|     \/  \/ \__,_|\__\___|_| |_|
+    ASCII_ART_SUCESS = r"""
+       ___ _   _  ___ ___ ___  ___ ___ 
+      / __| | | |/ __/ __/ _ \/ __/ __|
+      \__ \ |_| | (_| (_|  __/\__ \__ \
+      |___/\__,_|\___\___\___||___/___/
+    """
 
+    ASCII_ART_ERROR = r"""
+       ___ _ __ _ __ ___  _ __ 
+      / _ \ '__| '__/ _ \| '__|
+     |  __/ |  | | | (_) | |   
+      \___|_|  |_|  \___/|_|   
     """
 
 

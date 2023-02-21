@@ -21,7 +21,7 @@ def reset_local_folders(local_path_str: str):
     if my_path.exists():
         print(f'############# attempt to clean up files in local path: {local_path_str}')
         for f in os.listdir(local_path_str):
-            os.remove(str(my_path.joinpath(f).resolve()))
+            os.remove(my_path.joinpath(f).resolve())
     else:
         my_path.mkdir(parents=True, exist_ok=True)
 

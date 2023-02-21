@@ -67,7 +67,7 @@ def config_logging() -> None:
 
 def welcome() -> None:
     log = logging.getLogger()
-    log.info(Constant.ASCII_ART)
+    log.info(Constant.ASCII_ART_LOGO)
     log.info('Welcome to use the "file_watch" application!')
 
 

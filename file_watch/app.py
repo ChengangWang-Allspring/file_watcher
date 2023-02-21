@@ -6,6 +6,7 @@ from typing import List
 
 
 from file_watch.stage import finish, prepare, action
+from file_watch.common.enum_const import Constant
 
 
 def run(argv: List[str]) -> int:

@@ -16,7 +16,8 @@ from file_watch.core.config_core import ValidJobConfig
 
 
 def get_log_file_path(job_name: str) -> str:
-    # get logs absolute path from this module's path
+    """get logs absolute path from this module's path"""
+
     path = Path(__file__).parent.parent
     str_date = datetime.today().strftime('%Y-%m-%d')
     path = (
@@ -26,7 +27,8 @@ def get_log_file_path(job_name: str) -> str:
 
 
 def get_last_modified(file_name: str, source_path: str) -> datetime:
-    """return last modifed for a single file"""
+    """return last modifed datetime for a single file"""
+
     file_path = os.path.join(source_path, file_name)
     stats = os.stat(file_path)
     return datetime.fromtimestamp(stats.st_mtime)
@@ -34,6 +36,7 @@ def get_last_modified(file_name: str, source_path: str) -> datetime:
 
 def get_file_size(file_name: str, source_path: str) -> int:
     """return file size for a single file"""
+
     file_path = os.path.join(source_path, file_name)
     stats = os.stat(file_path)
     return stats.st_size

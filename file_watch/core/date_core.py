@@ -169,8 +169,8 @@ date_token_dict: Dict[str, Callable[[datetime], date]] = {
     'prevweekday': prev_weekday,  # previous work day
     'prevday': prev_day,  # previous day
     'prevbizday': prev_bizday,  # previous business day
-    'lastbizdayoflastmnth': last_bizday_of_last_month,  # last business day of last month
-    'lastdayoflastmnth': last_day_of_last_month,  # last day of last month
+    'lastbizdayofprevmnth': last_bizday_of_last_month,  # last business day of last month
+    'lastdayofprevmnth': last_day_of_last_month,  # last day of last month
     'firsbizdayofmnth': first_bizday_of_month,  # first business day of the current month
     'firsdayofmnth': first_day_of_month,  # first day of the current month
 }

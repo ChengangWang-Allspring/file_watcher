@@ -65,7 +65,7 @@ def mock_deliver_local_files(
                     Path(source_path).joinpath(file).touch(exist_ok=True)
                 else:
                     Path(LOCAL_TEMP_PATH).joinpath(file).touch(exist_ok=True)
-                    str_file_path = str(Path(LOCAL_TEMP_PATH).joinpath(file).resolve())
+                    str_file_path = Path(LOCAL_TEMP_PATH).joinpath(file).resolve()
                     os.utime(str_file_path, (1330712280, 1330712292))
                     shutil.move(str_file_path, Path(source_path).joinpath(file).resolve())
                 print(f'############# Mock file delivered to "{source_path}": {file} ...')
@@ -86,7 +86,7 @@ def mock_deliver_local_files(
                     Path(source_path).joinpath(real_file).touch(exist_ok=True)
                 else:
                     Path(LOCAL_TEMP_PATH).joinpath(real_file).touch(exist_ok=True)
-                    str_file_path = str(Path(LOCAL_TEMP_PATH).joinpath(real_file).resolve())
+                    str_file_path = Path(LOCAL_TEMP_PATH).joinpath(real_file).resolve()
                     os.utime(str_file_path, (1330712280, 1330712292))
                     shutil.move(str_file_path, Path(source_path).joinpath(real_file).resolve())
                 print(f'############# Mock file delivered to "{source_path}": {real_file} ...')
@@ -123,7 +123,7 @@ def mock_deliver_s3_files(file_names: List[str], file_count: int, source_path: s
                 )
                 Path(LOCAL_TEMP_PATH).joinpath(file).touch(exist_ok=True)
                 s3 = boto3.resource('s3')
-                source_path_str = str(Path(LOCAL_TEMP_PATH).joinpath(file).resolve())
+                source_path_str = Path(LOCAL_TEMP_PATH).joinpath(file).resolve()
                 key = prefix + file
                 s3.meta.client.upload_file(source_path_str, bucket, key)
                 print(f'############# Mock file delivered to "{source_path}": {file} ...')
@@ -141,7 +141,7 @@ def mock_deliver_s3_files(file_names: List[str], file_count: int, source_path: s
                 )
                 Path(LOCAL_TEMP_PATH).joinpath(real_file).touch(exist_ok=True)
                 s3 = boto3.resource('s3')
-                source_path_str = str(Path(LOCAL_TEMP_PATH).joinpath(real_file).resolve())
+                source_path_str = Path(LOCAL_TEMP_PATH).joinpath(real_file).resolve()
                 key = prefix + real_file
                 s3.meta.client.upload_file(source_path_str, bucket, key)
                 print(f'############# Mock file delivered to "{source_path}": {real_file} ...')

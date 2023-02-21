@@ -21,7 +21,7 @@ Date Token | Meaning
 'prevWeekDay' | previous week day 
 'prevDay' | previous day  
 'prevBizDay'| previous business day
-'lastBizDayOfLastMnth'  |  last business day of last month
-'lastDayOfLastMnth'  | last day of last month
+'lastBizDayOfPrevMnth'  |  last business day of last month
+'lastDayOfPrevMnth'  | last day of last month
 'firsBizDayOfMnth' | first business day of the current month
 'firsDayOfMnth'  | first day of the current month

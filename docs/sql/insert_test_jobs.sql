@@ -1,8 +1,8 @@
 use tpsServices
 GO
 
-DELETE FROM file_watch_config_test WHERE app_id='TEST'
-SELECT * FROM file_watch_config_test WHERE app_id='TEST'
+DELETE FROM file_watch_config_test WHERE job_name like 'test_%'
+SELECT * FROM file_watch_config_test WHERE job_name like 'test_%'
 
 -- test_1: Test local path, single file
 insert file_watch_config_test (job_name, app_id, job_description, file_names, file_count, source_path, sleep_time,look_time)
@@ -40,7 +40,7 @@ values ('test_8','TEST','Test error: missing app_id, file_names', '', 0, 'C:\cwa
 
 -- test_9: Test date tokens & formats
 insert file_watch_config_test (job_name, app_id, job_description, file_names, file_count, source_path, sleep_time,look_time)
-values ('test_9','TEST','Test date tokens & formats', 'a_{yyyyMMdd}.txt,b_{today}.txt,d_{todayPm:yyMMdd}.txt,e_{prevWeekDay:yyyy_MM_dd}.txt,f_{prevDay:MM-dd-yyyy}.txt,g_{prevBizDay:yyyyMMdd}.txt,h_{lastBizDayOfLastMnth:MM-dd-yyyy}.txt,i_{lastDayOfLastMnth:MM_dd_yyyy}.txt,j_{firsBizDayOfMnth:MM_dd_yyyy}.txt,j_{firsDayOfMnth:MM_dd_yyyy}.txt', 100, 'C:\cwang\Apps\inbound', 5,10 )
+values ('test_9','TEST','Test date tokens & formats', 'a_{yyyyMMdd}.txt,b_{today}.txt,d_{todayPm:yyMMdd}.txt,e_{prevWeekDay:yyyy_MM_dd}.txt,f_{prevDay:MM-dd-yyyy}.txt,g_{prevBizDay:yyyyMMdd}.txt,h_{lastBizDayOfPrevMnth:MM-dd-yyyy}.txt,i_{lastDayOfPrevMnth:MM_dd_yyyy}.txt,j_{firsBizDayOfMnth:MM_dd_yyyy}.txt,j_{firsDayOfMnth:MM_dd_yyyy}.txt', 100, 'C:\cwang\Apps\inbound', 5,10 )
 
 
 -- test_10: Test if target_path is valid
