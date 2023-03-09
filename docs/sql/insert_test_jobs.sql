@@ -89,3 +89,7 @@ values ('test_19','TEST','Test ultra large file', 'DevExpress*', 1, 's3://s3-agt
 -- test_20 Test copy_files s3 to local/UNC, exclude processed files
 insert file_watch_config_test (job_name, app_id, job_description, file_names, file_count, source_path, sleep_time,look_time, use_copy, target_path, exclude_processed_files )
 values ('test_20','TEST','Test copy_files s3 to local, excluded processed files', 'Test_{yyyyMMdd}*.dat', 1, 's3://s3-agtps01-use-dev/tests/manual/inbound/', 10,20, 1, 'C:\cwang\Apps\inbound', 1 )
+
+-- test_21 Test exclude_age from S3 bucket due to timezone issue
+insert file_watch_config_test (job_name, app_id, job_description, file_names, file_count, source_path, sleep_time,look_time, exclude_age, use_copy, target_path )
+values ('test_21','TEST','Test exclude_age from s3', 'Test_{yyyyMMdd}*.dat', 1, 's3://s3-agtps01-use-dev/tests/manual/inbound/', 10,20, 1, 1, 'C:\cwang\Apps\inbound' )

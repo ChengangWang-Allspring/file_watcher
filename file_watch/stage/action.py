@@ -50,14 +50,13 @@ def perform_watch() -> List[str]:
             for file in match.copy():
                 if config.effective_source_path_type == PathType.S3_PATH:
                     # modified date from s3 bucket has timezone info
-                    delta: timedelta = datetime.now() - tz_helper.utc_to_local(
-                        date_dict[file]
-                    ).replace(tzinfo=None)
+                    file_date = tz_helper.utc_to_local(date_dict[file]).replace(tzinfo=None)
                 else:
-                    delta: timedelta = datetime.now() - date_dict[file]
+                    file_date = date_dict[file]
+                delta: timedelta = datetime.now() - file_date
                 if delta.total_seconds() > (config.exclude_age * 60 * 60):
                     log.info(
-                        f'1 file ({file}) skipped due to too old. Last modified date: {date_dict[file]}'
+                        f'1 file ({file}) skipped due to too old. Last modified date: {file_date}'
                     )
                     match.remove(file)
 
