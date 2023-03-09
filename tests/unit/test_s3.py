@@ -13,3 +13,4 @@ from file_watch.common import s3_helper
 )
 def test_get_s3_bucket_prefix_by_uri(txt_input, expected):
     assert s3_helper.get_s3_bucket_prefix_by_uri(txt_input) == expected
+

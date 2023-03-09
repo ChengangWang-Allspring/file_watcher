@@ -2,6 +2,8 @@ from pydantic import BaseModel, validator, root_validator
 
 import logging
 from typing import Optional, List, Any
+from datetime import datetime
+from pytz import timezone, utc
 
 from file_watch.core import core_helper
 from file_watch.common.enum_const import PathType
@@ -39,6 +41,9 @@ class ValidJobConfig(BaseModel):
     archive_path: Optional[str]
     offset_days: Optional[int]
     offset_hours: Optional[int]
+    exclude_processed_files: Optional[bool]
+    last_processed_file_datetime: Optional[datetime]
+    file_required: Optional[bool]
 
     # derived fields must be after base fields
     effective_source_path_type: PathType = PathType.NONE
@@ -233,6 +238,14 @@ class ValidJobConfig(BaseModel):
         log.info(f'{"archive_path"} : {self.archive_path }')
         log.info(f'{"offset_days"} : {self.offset_days }')
         log.info(f'{"offset_hours"} : {self.offset_hours }')
+        log.info(f'{"exclude_processed_files"} : {self.exclude_processed_files }')
+        if self.last_processed_file_datetime is not None:
+            log.info(
+                f'{"last_processed_file_datetime"} : {self.last_processed_file_datetime.strftime("%Y-%m-%d %H:%M:%S.%fZ") }'
+            )
+        else:
+            log.info(f'{"last_processed_file_datetime"} : None ')
+        log.info(f'{"file_required"} : {self.file_required }')
         log.info('-' * 80)
         log.info('<< Resolved Variables >>')
         log.info(f'{"effective_source_path_type"} : {self.effective_source_path_type }')

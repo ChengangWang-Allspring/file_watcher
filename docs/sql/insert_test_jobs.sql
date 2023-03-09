@@ -85,3 +85,7 @@ values ('test_18','TEST','Test min_size local', 'RIC_APX_Accounts_{yyyyMMdd}.dat
 -- test_19: Test exclude_age local
 insert file_watch_config_test (job_name, app_id, job_description, file_names, file_count, source_path, sleep_time,look_time)
 values ('test_19','TEST','Test ultra large file', 'DevExpress*', 1, 's3://s3-agtps01-use-dev/AGTPS/inbound/', 10,200)
+
+-- test_20 Test copy_files s3 to local/UNC, exclude processed files
+insert file_watch_config_test (job_name, app_id, job_description, file_names, file_count, source_path, sleep_time,look_time, use_copy, target_path, exclude_processed_files )
+values ('test_20','TEST','Test copy_files s3 to local, excluded processed files', 'Test_{yyyyMMdd}*.dat', 1, 's3://s3-agtps01-use-dev/tests/manual/inbound/', 10,20, 1, 'C:\cwang\Apps\inbound', 1 )

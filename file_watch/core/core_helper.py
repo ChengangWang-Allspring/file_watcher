@@ -61,6 +61,38 @@ def validate_path_type(my_path: str) -> PathType:
 def get_job_config_db(job_name: str) -> dict:
     """get job configuration from db profile"""
 
+    conn_string, database, table = get_db_conn_string()
+    conn = pyodbc.connect(conn_string)
+    # get job configuration from datatbase table by job_name
+    try:
+        cursor = conn.cursor()
+        cursor.execute(f'select top 1 * from {table} where job_name = ?', job_name)
+        columns = [column[0] for column in cursor.description]
+        results = cursor.fetchall()
+        if len(results) == 0:
+            raise Exception(f'job_name not found in table {database}.{table} : {job_name}')
+        row = results[0]
+        my_dict: dict = dict(zip(columns, row))
+        # split file_name, copy_name, archive_name to list of strings (required for ValidJobConfig)
+        if isinstance(my_dict['file_names'], str):
+            my_dict['file_names'] = my_dict['file_names'].split(',')
+        if isinstance(my_dict['copy_names'], str):
+            my_dict['copy_names'] = my_dict['copy_names'].split(',')
+        if isinstance(my_dict['archive_names'], str):
+            my_dict['archive_names'] = my_dict['archive_names'].split(',')
+
+    except Exception as ex:
+        raise ex
+    finally:
+        cursor.close()
+        conn.close()
+
+    return my_dict
+
+
+def get_db_conn_string() -> str:
+    """get database connection string, along with databse and table names"""
+
     log = logging.getLogger()
 
     # read database profile from data/db.ini
@@ -103,28 +135,30 @@ def get_job_config_db(job_name: str) -> dict:
     log.info(f'Job config database: {database} ')
     log.info(f'Job config table: {table} ')
 
+    return (conn_string, database, table)
+
+
+def update_db_last_processed_file_datetime(job_name: str, my_datetime: datetime) -> dict:
+    """update last_processed_file_datetime  in database"""
+
+    log = logging.getLogger()
+    conn_string, database, table = get_db_conn_string()
     conn = pyodbc.connect(conn_string)
     # get job configuration from datatbase table by job_name
     try:
         cursor = conn.cursor()
-        cursor.execute(f'select top 1 * from {table} where job_name = ?', job_name)
-        columns = [column[0] for column in cursor.description]
-        results = cursor.fetchall()
-        if len(results) == 0:
-            raise Exception(f'job_name not found in table {database}.{table} : {job_name}')
-        row = results[0]
-        my_dict: dict = dict(zip(columns, row))
-        # split file_name, copy_name, archive_name to list of strings (required for ValidJobConfig)
-        if isinstance(my_dict['file_names'], str):
-            my_dict['file_names'] = my_dict['file_names'].split(',')
-        if isinstance(my_dict['copy_names'], str):
-            my_dict['copy_names'] = my_dict['copy_names'].split(',')
-        if isinstance(my_dict['archive_names'], str):
-            my_dict['archive_names'] = my_dict['archive_names'].split(',')
+        update_query = f'update {table} set last_processed_file_datetime= ? where job_name = ?'
+        log.info(
+            f'Updating last_processed_file_datetime for job "{job_name}" in "{database}.{table}"'
+        )
+        log.info(f'update_query: "{update_query}"')
+        log.info('last_processed_file_datetime (local time): ' + my_datetime.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3])
+        # python %f print out microseconds, whereas SQL server only accepts milliseconds
+        cursor.execute(update_query, my_datetime.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3], job_name)
+        conn.commit()
 
     except Exception as ex:
         raise ex
     finally:
+        cursor.close()
         conn.close()
-
-    return my_dict

@@ -1,14 +1,16 @@
 import logging
 import fnmatch
 import time
-
+import sys
 from datetime import datetime
 from datetime import timedelta
 from typing import List
 
-from file_watch.common.enum_const import Constant
-from file_watch.common import file_helper
+from file_watch.common.enum_const import Constant, PathType
+from file_watch.common import file_helper, tz_helper
+from file_watch.common.setting import Setting
 from file_watch.stage import config_cache
+from file_watch.core import core_helper
 
 
 def perform_watch() -> List[str]:
@@ -36,7 +38,7 @@ def perform_watch() -> List[str]:
 
         # check file size greater equal than min_size
         if config.min_size is not None and config.min_size > 0:
-            for file in match:
+            for file in match.copy():
                 if size_dict[file] < config.min_size:
                     log.info(
                         f'1 file ({file}) skipped due to not reaching min_size {config.min_size}: actual file size {size_dict[file]}'
@@ -45,13 +47,42 @@ def perform_watch() -> List[str]:
 
         # check file age (hours) is less than delta of file's last_modified
         if config.exclude_age is not None and config.exclude_age > 0:
-            for file in match:
-                delta: timedelta = datetime.now() - date_dict[file]
+            for file in match.copy():
+                if config.effective_source_path_type == PathType.S3_PATH:
+                    # modified date from s3 bucket has timezone info
+                    delta: timedelta = datetime.now() - tz_helper.utc_to_local(
+                        date_dict[file]
+                    ).replace(tzinfo=None)
+                else:
+                    delta: timedelta = datetime.now() - date_dict[file]
                 if delta.total_seconds() > (config.exclude_age * 60 * 60):
                     log.info(
                         f'1 file ({file}) skipped due to too old. Last modified date: {date_dict[file]}'
                     )
                     match.remove(file)
+
+        # check if previously processed files need to be excluded
+        if config.exclude_processed_files:
+            for file in match.copy():
+                if config.effective_source_path_type == PathType.S3_PATH:
+                    file_date = tz_helper.utc_to_local(date_dict[file]).replace(tzinfo=None)
+                else:
+                    file_date = date_dict[file]
+                log.debug(f'last_modified_datetime for {file}: {file_date.isoformat()}')
+
+                if (
+                    config.last_processed_file_datetime is not None
+                    and file_date <= config.last_processed_file_datetime
+                ):
+                    log.info(
+                        f'1 file ({file}) skipped due to previously processed. Last modified date: {file_date}'
+                    )
+                    match.remove(file)
+                else:
+                    if config_cache.max_file_datetime is None:
+                        config_cache.max_file_datetime = file_date
+                    elif file_date > config_cache.max_file_datetime:
+                        config_cache.max_file_datetime = file_date
 
         if len(match) >= config.file_count:
             log.info('=' * 80)
@@ -86,10 +117,21 @@ def perform_watch() -> List[str]:
             )
             time.sleep(config.sleep_time)
             if poll_attempt >= config.look_time:
-                log.error(
-                    f'No File (or Not Enough Files [ 0 out of {config.file_count} ]) were Found in the requested amount of times.'
-                )
-                raise TimeoutError('Maximum polling times reached!')
+                if config.file_required is None or config.file_required:
+                    log.error(
+                        f'No File (or Not Enough Files [ 0 out of {config.file_count} ]) were Found in the requested amount of times.'
+                    )
+                    raise TimeoutError('Maximum polling times reached!')
+                else:
+                    now = datetime.now().strftime('%c')
+                    log.warn(
+                        f'No File (or Not Enough Files [ 0 out of {config.file_count} ]) were Found in the requested amount of times.'
+                    )
+                    log.info(
+                        f'<<<<< File Watcher Job ({Setting.job_name}) -- Completed without finding the file(s) at ( {now} ) >>>>> '
+                    )
+                    log.info('EXIT 0')
+                    sys.exit(0)
 
 
 def may_peform_copy(file_list: List[str]) -> None:
@@ -105,6 +147,12 @@ def may_peform_copy(file_list: List[str]) -> None:
         log.info(f'{"effective_file_names"} : {config.effective_file_names }')
         log.info(f'Files found by file_watch at source_path: {file_list}')
         file_helper.copy_files(config, file_list)
+        if config.exclude_processed_files:
+            log.info('Updating database with max file datetime ... ')
+            assert config_cache.max_file_datetime is not None
+            core_helper.update_db_last_processed_file_datetime(
+                config.job_name, config_cache.max_file_datetime
+            )
         log.info('=' * 80)
 
 

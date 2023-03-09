@@ -27,6 +27,9 @@ CREATE TABLE [dbo].[file_watch_config](
 	[archive_path] [VARCHAR](500) NULL,
 	[offset_days] [INT] NULL,
 	[offset_hours] [INT] NULL,
+	[exclude_processed_files] [BIT] NULL,
+	[last_processed_file_datetime] [DateTime] NULL,
+	[file_required] [BIT] NULL,
  CONSTRAINT [PK_file_watch_config] PRIMARY KEY CLUSTERED 
 (
 	[job_name] ASC
@@ -65,6 +68,9 @@ CREATE TABLE [dbo].[file_watch_config_test](
 	[archive_path] [VARCHAR](2000) NULL,
 	[offset_days] [INT] NULL,
 	[offset_hours] [INT] NULL,
+	[exclude_processed_files] [BIT] NULL,
+	[last_processed_file_datetime] [DateTime] NULL,
+	[file_required] [BIT] NULL,	
  CONSTRAINT [PK_file_watch_config_test] PRIMARY KEY CLUSTERED 
 (
 	[job_name] ASC

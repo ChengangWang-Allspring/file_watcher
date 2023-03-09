@@ -97,3 +97,4 @@ def test_get_files_dicts_on_local(tmp_path):
         assert (date - start_time) < timedelta(seconds=1)
     for size in size_dict.values():
         assert size == 0
+
