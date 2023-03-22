@@ -20,7 +20,6 @@ holidays==0.19
 idna==3.4
 iniconfig==2.0.0
 jmespath==1.0.1
-jobs==0.0.0
 korean-lunar-calendar==0.3.1
 mypy==1.0.1
 mypy-boto3-cloudformation==1.26.60
@@ -51,6 +50,7 @@ pyproject_hooks==1.0.0
 pytest==7.2.1
 python-dateutil==2.8.2
 pytz==2022.7.1
+pytz-deprecation-shim==0.1.0.post0
 pywin32-ctypes==0.2.0
 PyYAML==6.0
 requests==2.28.2
@@ -60,5 +60,7 @@ types-awscrt==0.16.10
 types-PyYAML==6.0.12.6
 types-s3transfer==0.6.0.post5
 typing_extensions==4.4.0
+tzdata==2022.7
+tzlocal==4.2
 urllib3==1.26.14
 yarg==0.1.9
