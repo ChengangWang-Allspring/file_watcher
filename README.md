@@ -24,6 +24,8 @@ https://github.com/ChengangWang-Allspring/file_watcher
 * steps to install the app on EC2 (d:\ drive on EC2 windows server)
 1. install Python 3.11
 2. Set up a virtual environment using installed version of Python 3.11: d:\Apps\common\python_venv\venv_311_pm_watch
+using the following command as an example
+`python -m venv D:\Apps\common\python_venv\venv_311_pm_watch`
 3. Setup system environment variable: PYTHON_VENV  =  D:\Apps\common\python_venv\venv_311_pm_watch\Scripts\python.exe
 4. Setup another system environment variable: PYTHONPATH = D:\Apps\common
 4. xcopy the whole folder `file_watch` from `file_watcher` (file_watcher is the root of the project) to D:\Apps\common
