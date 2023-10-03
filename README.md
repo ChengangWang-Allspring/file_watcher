@@ -6,6 +6,12 @@ A file watcher application build in Python, as a supplement for the Autosys work
 
 The file watcher is for watching, validating and transferring one or multiple files from a source location (S3 bucket or network share), to application inbound folder on EC2 server. The current build is only tested in Windows Server. 
 
+## Version History
+
+* version 0.1.7 (Oct 3, 2023): changed exit code to 12345 when file not found and file_required=0
+* version 0.1.6 (May 19, 2023): added feature: exclude_processed_files and file_required flag for a special use case in Trade Rotation application
+* version 0.1.5 (Feb 22, 2023): initial release of File watcher for AGTPS application (will be used by Fundamental Fixed Income apps such as Radar, MoneyFunds Workspace too) 
+
 ## Getting Started
 
  See the installation guide below.
@@ -14,26 +20,30 @@ The file watcher is for watching, validating and transferring one or multiple fi
 
 * Python 3.11
 * ex. Windows 10
-* use ```pip install -r requirements.txt``` to install 3rd parth packages in a Python virtual environment
+* `requirements.txt` for installation of 3rd party packages in the Python virtual environment
+
 
 ### File Watcher App - EC2 Windows Installation Guide
 
-* How/where to download the app
-https://github.com/ChengangWang-Allspring/file_watcher
-
-* steps to install the app on EC2 (d:\ drive on EC2 windows server)
-1. install Python 3.11
+1. install Python 3.11 (for all users, so that it installs to `C:\Program Files\Python311`). Make sure  add-on is included.
 2. Set up a virtual environment using installed version of Python 3.11: d:\Apps\common\python_venv\venv_311_pm_watch
-using the following command as an example
+using the following command as an example   
 `python -m venv D:\Apps\common\python_venv\venv_311_pm_watch`
-3. Setup system environment variable: PYTHON_VENV  =  D:\Apps\common\python_venv\venv_311_pm_watch\Scripts\python.exe
-4. Setup another system environment variable: PYTHONPATH = D:\Apps\common
-4. xcopy the whole folder `file_watch` from `file_watcher` (file_watcher is the root of the project) to D:\Apps\common
-5. Use the following command in the Autosys File_Watch job
-command = ```%PYTHON_VENV% -m file_watch %AUTO_JOB_NAME%```
-Standard output file = >D:\Apps\Logs\%AUTO_JOB_NAME%_%AUTORUN%.out
-Standard error file = >D:\Apps\Logs\%AUTO_JOB_NAME%_%AUTORUN%.err
-6. To configure an Autosys job in the metadata table, see the steps of Metadata Database Table Guide & Job Config Metadata Guide
+3. To activate the virtual environment, open a command prompt, and run   `D:\Apps\common\python_venv\venv_311_pm_watch\Scripts\activate.bat`
+4. If and only if the Python virtual environment is activated (you can tell by a parenthesis `(venv_311_pm_watch)` on the left in command prompt), run the below command:  
+`pip install -r D:\requirements.txt` 
+, which installs 3rd parth packages in the Python virtual environment
+5. Setup system environment variable:    
+`PYTHON_VENV`  =  D:\Apps\common\python_venv\venv_311_pm_watch\Scripts\python.exe
+6. Setup another system environment variable:   
+`PYTHONPATH` = D:\Apps\common
+7. Xcopy the whole python sub-folder `file_watch` from `file_watcher` (file_watcher is the root of the project) to   
+`D:\Apps\common`
+8. Use the following command in the Autosys File_Watch job   
+command = ```%PYTHON_VENV% -m file_watch %AUTO_JOB_NAME%```   
+Standard output file = `>D:\Apps\Logs\%AUTO_JOB_NAME%_%AUTORUN%.out`   
+Standard error file = `>D:\Apps\Logs\%AUTO_JOB_NAME%_%AUTORUN%.err`
+9. To configure an Autosys job in the metadata table, see the steps of `Metadata Database Table Guide` & `Job Config Metadata Guide`
 
 ### Metadata Database Table Guide
 1. Metadata table can be created in any SQL Server database. The DDL script for the table creation is in `file_watcher/docs/sql/create_config_table.sql`. Only one table in the script is needed. Ignore the test table in the script.
@@ -67,7 +77,7 @@ i.e.  `s3://allspring-us-east-1-s3-sftp-storage/wellsfargo/AGTPS/prod/inbound/`
 * offset_days: temporarily offset days in additional to the date-token logic in the file_name pattern.  Usually leave it to NULL, unless you know what you're doing. It's better figure out what's the correct date-token logic. This one is the last resort
 * offset_hours: temporarily offset hours in additional to the date-token logic in the file_name pattern.  Usually leave it to NULL, unless you know what you're doing. It's better figure out what's the correct date-token logic. This one is the last resort
 * exclude_processed_files: optional bit (boolean) field, if it's set to 1, it turns on the logic to ignore already processed file(s) by looking up `last_processed_file_datetime` column
-* file_required: optional bit (boolean) fields, if it's NULL or 1, the file is required for the app. If during the wait/polling period, file(s) doesn't arrive, the app will return a non-zero code causing Autosys job fail. If it's set to be 0, the Autosys job won't fail if file doesn't arrive during the wait period.
+* file_required: optional bit (boolean) fields, if it's NULL or 1, the file is required for the app. If during the wait/polling period, file(s) doesn't arrive, the app will return a non-zero code causing Autosys job fail. If it's set to be 0, the Autosys job won't fail if file doesn't arrive during the wait period (it will silently return `12345` without throwing error).
 
 ### Executing program
 
@@ -98,11 +108,6 @@ Contributors names and contact info
 Chenggang Wang  
 cwang@allspringglobal.com
 
-## Version History
-
-* 0.1
-    * Initial Release
-* 0.1.6 stable version for TPS and Trade Rotation, with feature of excluded processed files
 
 ## License
 
