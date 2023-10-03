@@ -129,8 +129,8 @@ def perform_watch() -> List[str]:
                     log.info(
                         f'<<<<< File Watcher Job ({Setting.job_name}) -- Completed without finding the file(s) at ( {now} ) >>>>> '
                     )
-                    log.info('EXIT 0')
-                    sys.exit(0)
+                    log.info('EXIT 12345')
+                    sys.exit(12345)
 
 
 def may_peform_copy(file_list: List[str]) -> None:
