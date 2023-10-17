@@ -8,6 +8,7 @@ The file watcher is for watching, validating and transferring one or multiple fi
 
 ## Version History
 
+* branch 0.1.8  (Oct 17, 2023): GPARMS team came across an random FSX issue, had to change from .resolve() to .absolute(). It's not well documented function. Use it at your own risk. This branch is not checked in master
 * version 0.1.7 (Oct 3, 2023): changed exit code to 12345 when file not found and file_required=0
 * version 0.1.6 (May 19, 2023): added feature: exclude_processed_files and file_required flag for a special use case in Trade Rotation application
 * version 0.1.5 (Feb 22, 2023): initial release of File watcher for AGTPS application (will be used by Fundamental Fixed Income apps such as Radar, MoneyFunds Workspace too) 
