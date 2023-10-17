@@ -105,8 +105,8 @@ def copy_file_by_path_type(config: ValidJobConfig, file_name: str) -> None:
             copy_file_path = Path(config.target_path).joinpath(file_name).resolve()
             copy_file_path_2 = Path(config.target_path).joinpath(file_name).absolute()
             log = logging.getLogger()
-            log.info(f'S3 to local/UNC copy target path using resolve() : {copy_file_path} ')
-            log.info(f'S3 to local/UNC copy target path using absolute(): {copy_file_path_2} ')
+            log.info(f'S3 to local/UNC copy target path using resolve() : {str(copy_file_path)} ')
+            log.info(f'S3 to local/UNC copy target path using absolute(): {str(copy_file_path_2)} ')
             s3_helper.copy_files_s3_2_local(source_bucket, source_key, str(copy_file_path))
     else:
         if config.effective_target_path_type == PathType.S3_PATH:
