@@ -59,7 +59,7 @@ def test_prev_weekday(txt_input, expected):
 
 @pytest.mark.date_test
 def test_prev_day():
-    assert dp.prev_weekday(datetime(2023, 1, 3)) == date(2023, 1, 2)
+    assert dp.prev_day(datetime(2023, 1, 3)) == date(2023, 1, 2)
 
 
 @pytest.mark.date_test
@@ -134,6 +134,46 @@ def test_first_day_of_month():
 
 
 @pytest.mark.date_test
+@pytest.mark.parametrize(
+    'txt_input, expected',
+    [
+        ('2023-10-27', '2023-10-30'),
+        ('2023-10-28', '2023-10-30'),
+        ('2023-10-29', '2023-10-30'),
+        ('2023-10-30', '2023-10-31'),
+        ('2023-10-26', '2023-10-27'),
+    ],
+)
+def test_next_weekday(txt_input, expected):
+    in_date = datetime.strptime(txt_input, '%Y-%m-%d')
+    out_date = datetime.strptime(expected, '%Y-%m-%d').date()
+    assert dp.next_weekday(in_date) == out_date
+
+
+@pytest.mark.date_test
+def test_next_day():
+    assert dp.next_day(datetime(2023, 10, 27)) == date(2023, 10, 28)
+
+
+@pytest.mark.date_test
+@pytest.mark.parametrize(
+    'txt_input, expected',
+    [
+        ('2023-12-22', '2023-12-26'),
+        ('2023-12-27', '2023-12-28'),
+        ('2023-10-13', '2023-10-16'),
+        ('2023-10-14', '2023-10-16'),
+        ('2023-11-22', '2023-11-24'),
+        ('2023-12-02', '2023-12-04'),
+    ],
+)
+def test_next_bizday(txt_input, expected):
+    in_date = datetime.strptime(txt_input, '%Y-%m-%d')
+    out_date = datetime.strptime(expected, '%Y-%m-%d').date()
+    assert dp.next_bizday(in_date) == out_date
+
+
+@pytest.mark.date_test
 def test_split_date_token_fmt():
     assert split('abc:YYYY') == ('abc', 'YYYY')
     assert split(' abc : MMdd ') == ('abc', 'MMdd')
@@ -155,3 +195,4 @@ def test_parse_format_date():
     assert pf(datetime(2022, 8, 15), 'lastDayOfPrevMnth', 'yyyy_MM_dd') == '2022_07_31'
     assert pf(datetime(2022, 1, 15), 'firsBizDayOfMnth', 'yyyy_MM_dd') == '2022_01_03'
     assert pf(datetime(2022, 1, 15), 'firsDayOfMnth', 'yyyy_MM_dd') == '2022_01_01'
+

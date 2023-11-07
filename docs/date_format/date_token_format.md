@@ -25,3 +25,6 @@ Date Token | Meaning
 'lastDayOfPrevMnth'  | last day of last month
 'firsBizDayOfMnth' | first business day of the current month
 'firsDayOfMnth'  | first day of the current month
+'nextWeekDay' | next week day 
+'nextDay' | next day  
+'nextBizDay'| next business day

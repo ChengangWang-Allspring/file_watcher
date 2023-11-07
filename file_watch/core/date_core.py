@@ -162,6 +162,35 @@ def first_day_of_month(systime: datetime) -> date:
     return systime.date().replace(day=1)
 
 
+def next_weekday(systime: datetime) -> date:
+    """next week day using weekday() function"""
+
+    sysdate = systime.date()
+    if sysdate.weekday() == 4:
+        diff = 3
+    elif sysdate.weekday() == 5:
+        diff = 2
+    else:
+        diff = 1
+    return sysdate + timedelta(days=diff)
+
+
+def next_day(systime: datetime) -> date:
+    """next day"""
+
+    return systime.date() + timedelta(days=1)
+
+
+def next_bizday(systime: datetime) -> date:
+    """next business day excluding observed US holiday"""
+
+    my_date = systime.date() + timedelta(days=1)
+    us_holidays = holidays.UnitedStates()
+    while my_date in us_holidays or my_date.weekday() >= 5:
+        my_date += timedelta(days=1)
+    return my_date
+
+
 # Date Token to func() mapping, keys must be all lower cases
 date_token_dict: Dict[str, Callable[[datetime], date]] = {
     'today': today,
@@ -173,6 +202,9 @@ date_token_dict: Dict[str, Callable[[datetime], date]] = {
     'lastdayofprevmnth': last_day_of_last_month,  # last day of last month
     'firsbizdayofmnth': first_bizday_of_month,  # first business day of the current month
     'firsdayofmnth': first_day_of_month,  # first day of the current month
+    'nextweekday': next_weekday,  # previous work day
+    'nextday': next_day,  # previous day
+    'nextbizday': next_bizday,  # previous business day
 }
 
 
@@ -244,3 +276,4 @@ def parse_format_date(
     log.info(f'transformed date_string: {date_string}')
 
     return date_string
+
