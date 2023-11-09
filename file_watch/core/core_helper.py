@@ -17,28 +17,29 @@ def parse_file_name(file_name: str, offset_days: int = 0, offset_hours: int = 0)
     <Date fmt> is .NET based Date Format string. It will be converted to Python date format string
     """
 
-    token: list[str] = re.findall(Constant.REGEX_FILE_NAME, file_name)
+    tokens: list[str] = re.findall(Constant.REGEX_FILE_NAME, file_name)
 
-    if len(token) == 0:
+    if len(tokens) == 0:
         return file_name
-    elif len(token) > 1:
-        raise ValueError(f'cannot have more than one date_token_fmt variables: {file_name}')
+    #elif len(tokens) > 1:
+    #    raise ValueError(f'cannot have more than one date_token_fmt variables: {file_name}')
 
-    date_token_fmt = token[0]
-    log = logging.getLogger()
-    log.info('-' * 80)
-    log.info(f'parsing file_name: {file_name} ')
-    log.info(f'date_token_fmt variable: {{{date_token_fmt}}}')
+    for i, date_token_fmt in enumerate(tokens):
+        #date_token_fmt = tokens[0]
+        log = logging.getLogger()
+        log.info('-' * 80)
+        log.info(f'parsing file_name: {file_name} ')
+        log.info(f'date_token_fmt variable #{i}: {{{date_token_fmt}}}')
 
-    date_token, date_fmt = date_core.split_date_token_fmt(date_token_fmt)
+        date_token, date_fmt = date_core.split_date_token_fmt(date_token_fmt)
 
-    # get date string by token and format
-    parsed_date_str = date_core.parse_format_date(
-        datetime.now(), date_token, date_fmt, offset_days, offset_hours
-    )
-    parsed_file_name = file_name.replace('{' + date_token_fmt + '}', parsed_date_str)
-    log.info(f'effective_file_name: {parsed_file_name}')
-    return parsed_file_name
+        # get date string by token and format
+        parsed_date_str = date_core.parse_format_date(
+            datetime.now(), date_token, date_fmt, offset_days, offset_hours
+        )
+        file_name = file_name.replace('{' + date_token_fmt + '}', parsed_date_str)
+    log.info(f'effective_file_name: {file_name}')
+    return file_name
 
 
 def validate_path_type(my_path: str) -> PathType:
@@ -80,6 +81,11 @@ def get_job_config_db(job_name: str) -> dict:
             my_dict['copy_names'] = my_dict['copy_names'].split(',')
         if isinstance(my_dict['archive_names'], str):
             my_dict['archive_names'] = my_dict['archive_names'].split(',')
+        if 'files_decompress' in my_dict.keys() and isinstance(my_dict['files_decompress'], str):
+            my_dict['files_decompress'] = my_dict['files_decompress'].split(',')
+            my_dict['files_decompress'] = [x.strip(' ').lower() for x in my_dict['files_decompress']]
+            while("" in my_dict['files_decompress']):
+                my_dict['files_decompress'].remove("")
 
     except Exception as ex:
         raise ex

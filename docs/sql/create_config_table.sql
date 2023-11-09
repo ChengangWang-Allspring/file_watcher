@@ -8,7 +8,8 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-CREATE TABLE [dbo].[file_watch_config](
+CREATE TABLE [dbo].[file_watch_config]
+(
 	[job_name] [VARCHAR](50) NOT NULL,
 	[app_id] [VARCHAR](10) NOT NULL,
 	[job_description] [VARCHAR](200) NULL,
@@ -30,7 +31,8 @@ CREATE TABLE [dbo].[file_watch_config](
 	[exclude_processed_files] [BIT] NULL,
 	[last_processed_file_datetime] [DateTime] NULL,
 	[file_required] [BIT] NULL,
- CONSTRAINT [PK_file_watch_config] PRIMARY KEY CLUSTERED 
+	[files_decompress] [varchar] (20) NULL,
+	CONSTRAINT [PK_file_watch_config] PRIMARY KEY CLUSTERED 
 (
 	[job_name] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
@@ -49,7 +51,8 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-CREATE TABLE [dbo].[file_watch_config_test](
+CREATE TABLE [dbo].[file_watch_config_test]
+(
 	[job_name] [VARCHAR](50) NOT NULL,
 	[app_id] [VARCHAR](10) NOT NULL,
 	[job_description] [VARCHAR](200) NULL,
@@ -70,8 +73,9 @@ CREATE TABLE [dbo].[file_watch_config_test](
 	[offset_hours] [INT] NULL,
 	[exclude_processed_files] [BIT] NULL,
 	[last_processed_file_datetime] [DateTime] NULL,
-	[file_required] [BIT] NULL,	
- CONSTRAINT [PK_file_watch_config_test] PRIMARY KEY CLUSTERED 
+	[file_required] [BIT] NULL,
+	[files_decompress] [varchar] (20) NULL,
+	CONSTRAINT [PK_file_watch_config_test] PRIMARY KEY CLUSTERED 
 (
 	[job_name] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]

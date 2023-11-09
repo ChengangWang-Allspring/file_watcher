@@ -29,11 +29,14 @@ def run(argv: List[str]) -> int:
         # may perform copy
         action.may_peform_copy(files)
 
+        # may perform decompress
+        action.may_peform_decompress(files)
+
         # may perform archive
         action.may_perform_archive(files)
 
         # verify files
-        finish.verify(files)
+        finish.may_verify(files)
 
         # cleanup
         finish.cleanup()

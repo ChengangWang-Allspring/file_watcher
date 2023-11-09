@@ -5,6 +5,7 @@ from os import DirEntry
 import logging
 import shutil
 import fnmatch
+import gzip
 from pathlib import Path
 from datetime import datetime, timedelta
 from typing import Tuple, List, Dict
@@ -189,6 +190,37 @@ def archive_files(config: ValidJobConfig, files: list) -> None:
         log.info(f'Archiving {file_name} ... ')
         archive_file_by_path_type(config, file_name)
     log.info(f'{len(files)} file(s) successfully archived')
+
+
+def decompress_files(config: ValidJobConfig, files: list) -> None:
+    """decompress files from target path and clean"""
+
+    log = logging.getLogger()
+    i: int = 0
+    for file_name in files:
+        if file_name.lower().endswith('.gz') and '.gz' in config.files_decompress:
+            target_file_path_gz = str( Path(config.target_path).joinpath(file_name).resolve())
+            log.info(f'Decompressing {target_file_path_gz} ... ')
+            target_file_path = target_file_path_gz[:-3]
+            fp = open(target_file_path, "wb")
+            with gzip.open(target_file_path_gz, "rb") as f:
+                bindata = f.read()
+            fp.write(bindata)
+            fp.close()
+            log.info(f'Decompress .gz Success: {target_file_path} ') 
+            i = i+1
+            os.remove(target_file_path_gz)
+            log.info(f'Deleted original compressed file: {target_file_path_gz}  ') 
+        elif file_name.lower().endswith('.zip') and '.zip' in config.files_decompress:
+            target_file_path_zip = str(Path(config.target_path).joinpath(file_name).resolve())
+            log.info(f'Decompressing {target_file_path_zip} ... ')
+            shutil.unpack_archive(target_file_path_zip, config.target_path, 'zip')
+            i = i+1
+            log.info(f'Decompress .zip Success ') 
+            os.remove(target_file_path_zip)
+            log.info(f'Deleted original compressed file: {target_file_path_zip}  ') 
+
+    log.info(f'{i} file(s) successfully decompressed')
 
 
 def get_mode_date(entry: DirEntry) -> datetime:

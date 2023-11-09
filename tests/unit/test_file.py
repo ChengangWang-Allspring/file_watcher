@@ -45,6 +45,9 @@ def test_get_log_file_path():
         ('prefix_{lastDayOfPrevMnth}_surfix.csv', 'prefix_20220531_surfix.csv'),
         ('prefix_{firsBizDayOfMnth}_surfix.csv', 'prefix_20220601_surfix.csv'),
         ('prefix_{firsDayOfMnth}_surfix.csv', 'prefix_20220601_surfix.csv'),
+        ('prefix_{today:yyyyMM}_middle_{prevDay:MM-dd-yyyy}_surfix.csv', 'prefix_202206_middle_06-20-2022_surfix.csv'),
+        ('prefix_{prevDay:yyyy}_middle_{prevDay:MM}_another_{prevDay:dd}_surfix.csv', 'prefix_2022_middle_06_another_20_surfix.csv'),
+        ('prefix_{today:yyyyMM_middle_{prevDay:MM-dd-yyyy}_surfix.csv', 'prefix_{today:yyyyMM_middle_06-20-2022_surfix.csv'),
     ],
 )
 def test_parse_file_name(patch_datetime_now, txt_input, expected):

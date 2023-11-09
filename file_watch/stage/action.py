@@ -154,6 +154,21 @@ def may_peform_copy(file_list: List[str]) -> None:
             )
         log.info('=' * 80)
 
+def may_peform_decompress(file_list: List[str]) -> None:
+    """decompress file(s) and remove compressed file(s)"""
+
+    config = config_cache.config
+
+    if config.files_decompress is not None and len(config.files_decompress)>0:
+        log = logging.getLogger()
+        log.info('<<< Decompressing file(s) ... >>>')
+        log.info(f'{"target_path"} : {config.target_path }')
+        log.info(f'Files may be decompressed from source_path: {file_list}')
+        log.info(f'file_types enabled: {config.files_decompress}')
+        file_helper.decompress_files(config, file_list)
+
+        log.info('=' * 80)
+
 
 def may_perform_archive(file_list: list) -> None:
     """archive files from effective source to effective archive location"""

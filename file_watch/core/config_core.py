@@ -44,6 +44,7 @@ class ValidJobConfig(BaseModel):
     exclude_processed_files: Optional[bool]
     last_processed_file_datetime: Optional[datetime]
     file_required: Optional[bool]
+    files_decompress: Optional[List[str]]
 
     # derived fields must be after base fields
     effective_source_path_type: PathType = PathType.NONE
@@ -116,6 +117,17 @@ class ValidJobConfig(BaseModel):
         use_archive: bool = values.get('use_archive', False)
         if use_archive and value is None:
             raise ValueError('archive_path is required if use_archive is true')
+        return value
+    
+    @validator('files_decompress')
+    @classmethod
+    def validate_files_decompress(cls, value: Any) -> Any:
+        """only .gz and .zip are supported for decompress"""
+
+        if value is not None and len(value) > 0 :
+            for filetype in value:
+                if filetype not in ['.zip','.gz']: 
+                    raise ValueError(f'Only ".zip" and ".gz" are supported file types for decompress. Not supported type: "{filetype}"')
         return value
 
     @root_validator
@@ -217,6 +229,12 @@ class ValidJobConfig(BaseModel):
         values['effective_file_names'] = eff_file_names
         return values
 
+
+    
+
+
+
+
     def print_all_variables(self) -> None:
         log = logging.getLogger()
         log.info('<< Job Config Variables >>')
@@ -246,6 +264,7 @@ class ValidJobConfig(BaseModel):
         else:
             log.info(f'{"last_processed_file_datetime"} : None ')
         log.info(f'{"file_required"} : {self.file_required }')
+        log.info(f'{"files_decompress"} : {self.files_decompress }')
         log.info('-' * 80)
         log.info('<< Resolved Variables >>')
         log.info(f'{"effective_source_path_type"} : {self.effective_source_path_type }')

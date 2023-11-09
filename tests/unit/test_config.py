@@ -67,13 +67,6 @@ def test_bad_date_token(job_dict):
 
 
 @pytest.mark.config_test
-def test_too_many_date_token(job_dict):
-    with pytest.raises(ValueError):
-        job_dict['file_names'] = ['test{today:yyMMdd}_test{today:MMddyyyy}.txt']
-        _ = ValidJobConfig(**job_dict)
-
-
-@pytest.mark.config_test
 def test_missing_app_id(job_dict):
     with pytest.raises(ValueError):
         job_dict['app_id'] = ''

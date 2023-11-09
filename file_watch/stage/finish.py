@@ -10,11 +10,15 @@ from file_watch.common.enum_const import Constant, PathType, JobVerifyError
 from file_watch.stage import config_cache
 
 
-def verify(file_names: List[str]) -> bool:
+def may_verify(file_names: List[str]) -> bool:
     """verify if files exist on target_path or archive_path"""
 
     log = logging.getLogger()
     config = config_cache.config
+
+    if config.files_decompress is not None and len(config.files_decompress)>0:
+        # skip verifying files as the original compressed files are cleaned from target_path
+        return True 
 
     if config.use_copy:
         log.info('Verifying files exist in target_path ... ')
