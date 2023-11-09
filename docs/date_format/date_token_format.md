@@ -6,7 +6,8 @@ To embed date token and format in the filename, one or multimple variable(s) wra
 
 Syntax: {date-token:date-format-string}
 For example:  RIC_APX_Holdings_{yyyyMMdd}.dat  
-another example: Transactions_{today:MM-dd-yyyy}.dat  
+another example: Transactions_{today:MM-dd-yyyy}.dat 
+multi-tokens example:  prefix_{today:yyyy}_middle_{today:MM-dd}.csv 
 
 default date-token is {today}.  
 default date-format-string is {yyyyMMdd}. 
