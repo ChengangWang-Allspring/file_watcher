@@ -7,7 +7,10 @@ A file watcher application build in Python, as a supplement for the Autosys work
 The file watcher is for watching, validating and transferring one or multiple files from a source location (S3 bucket or network share), to application inbound folder on EC2 server. The current build is only tested in Windows Server. 
 
 ## Version History
-* branch 0.1.10 (Nov 15, 2023): Multi date-tokens for filename(s), added decompress feature with new column `files_decompress` (supporting .gz and .zip)
+* branch 0.1.10 (Nov 15, 2023): 
+Multi date-tokens for filename(s), 
+added decompress feature with new column `files_decompress` (supporting .gz and .zip)
+fixed S3 to UNC copy error caused Path.resolve(). Randomly for UNC Path.resolve() adds \\?\UNC\ before \applicationfs.awsad.allspringglobal.com\{appID} causing S3 to FSX copy error. Using Path.absolute() fix the issue. 
 * branch 0.1.9  (Nov 01, 2023): Remi team requested new date-token `nextBizDay`, I also added `nextWeekDay` and `nextDay`
 * branch 0.1.8  (Oct 17, 2023): GPARMS team came across an random FSX issue, had to change from .resolve() to .absolute() for line 105. It's not well documented function. Use it at your own risk. This branch is not checked in master
 * version 0.1.7 (Oct 3, 2023): changed exit code to 12345 when file not found and file_required=0
