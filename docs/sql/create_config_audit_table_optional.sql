@@ -53,7 +53,7 @@ CREATE TABLE [dbo].[file_watch_config_audit](
 	[job_name] [varchar](150) NOT NULL,
 	[app_id] [varchar](10) NOT NULL,
 	[job_description] [varchar](200) NULL,
-	[file_names] [varchar](500) NOT NULL,
+	[file_names] [varchar](max) NOT NULL,
 	[file_count] [int] NOT NULL,
 	[source_path] [varchar](500) NOT NULL,
 	[sleep_time] [int] NOT NULL,

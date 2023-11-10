@@ -2,7 +2,7 @@
 
 Date-format string is .NET Date Format string which is more user-friendly
 
-To embed date token and format in the filename, one or multimple variable(s) wrapped with curly brace. All the date tokens are relative to the current system date where the Python program runs.
+To embed date token and format in the filename, one or multiple variable(s) wrapped with curly brace. All the date tokens are relative to the current system date where the Python program runs.
 
 Syntax: {date-token:date-format-string}
 For example:  RIC_APX_Holdings_{yyyyMMdd}.dat  
