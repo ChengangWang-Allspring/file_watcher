@@ -45,6 +45,7 @@ class ValidJobConfig(BaseModel):
     last_processed_file_datetime: Optional[datetime]
     file_required: Optional[bool]
     files_decompress: Optional[List[str]]
+    calendar_name: Optional[str]
 
     # derived fields must be after base fields
     effective_source_path_type: PathType = PathType.NONE
@@ -265,6 +266,7 @@ class ValidJobConfig(BaseModel):
             log.info(f'{"last_processed_file_datetime"} : None ')
         log.info(f'{"file_required"} : {self.file_required }')
         log.info(f'{"files_decompress"} : {self.files_decompress }')
+        log.info(f'{"calendar_name"} : {self.calendar_name }')
         log.info('-' * 80)
         log.info('<< Resolved Variables >>')
         log.info(f'{"effective_source_path_type"} : {self.effective_source_path_type }')

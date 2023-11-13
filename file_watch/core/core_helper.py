@@ -4,6 +4,7 @@ import re
 import logging
 import configparser
 import logging
+import traceback
 from pathlib import Path
 from datetime import datetime
 
@@ -86,6 +87,25 @@ def get_job_config_db(job_name: str) -> dict:
             my_dict['files_decompress'] = [x.strip(' ').lower() for x in my_dict['files_decompress']]
             while("" in my_dict['files_decompress']):
                 my_dict['files_decompress'].remove("")
+        if 'calendar_name' in my_dict.keys() and isinstance(my_dict['calendar_name'], str):
+            if my_dict['calendar_name'] != None:
+                try:
+                    log = logging.getLogger()
+                    cursor.execute(f'select date from file_watch_calendar where calendar_name = ? and is_holiday=1 and (date between DATEADD(year,-1,GETDATE()) and DATEADD(year,1,GETDATE()))', my_dict['calendar_name'])
+                    results = cursor.fetchall()
+                    Setting.holidays_yes = [row[0].date() for row in results]
+                    cursor.execute(f'select date from file_watch_calendar where calendar_name = ? and is_holiday=0 and (date between DATEADD(year,-1,GETDATE()) and DATEADD(year,1,GETDATE()))', my_dict['calendar_name'])
+                    results = cursor.fetchall()
+                    Setting.holidays_no = [row[0].date() for row in results]             
+                    log.info(f'Yes-Holiday overrides from table "file_watch_calendar" for calendar_name "{my_dict["calendar_name"]}"')
+                    log.info(','.join([date.strftime('%Y-%m-%d') for date in Setting.holidays_yes ]))      
+                    log.info(f'Not-Holiday overrides from table "file_watch_calendar" for calendar_name "{my_dict["calendar_name"]}"')
+                    log.info(','.join([date.strftime('%Y-%m-%d') for date in Setting.holidays_no ]))                
+                except Exception as ex:
+                    log.warning(f'Error selecting calendar_name from file_watch_calendar: {my_dict["calendar_name"]}')
+                    log.warning(ex)
+                    log.debug(type(ex).__name__)
+                    log.debug(traceback.format_exc())
 
     except Exception as ex:
         raise ex

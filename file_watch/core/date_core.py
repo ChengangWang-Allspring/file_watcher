@@ -4,6 +4,8 @@ import holidays
 import logging
 import traceback
 
+from file_watch.common.setting import Setting
+
 
 DEFAULT_DATE_TOKEN = 'today'
 DEFAULT_DATE_FORMAT = 'yyyyMMdd'
@@ -122,7 +124,8 @@ def prev_bizday(systime: datetime) -> date:
 
     my_date = systime.date() + timedelta(days=-1)
     us_holidays = holidays.UnitedStates()
-    while my_date in us_holidays or my_date.weekday() >= 5:
+    
+    while ((my_date in us_holidays or my_date in Setting.holidays_yes) and my_date not in Setting.holidays_no) or my_date.weekday() >= 5:
         my_date += timedelta(days=-1)
     return my_date
 
@@ -133,7 +136,7 @@ def last_bizday_of_last_month(systime: datetime) -> date:
     first = systime.date().replace(day=1)
     my_date = first - timedelta(days=1)
     us_holidays = holidays.UnitedStates()
-    while my_date in us_holidays or my_date.weekday() >= 5:
+    while ((my_date in us_holidays or my_date in Setting.holidays_yes) and my_date not in Setting.holidays_no)  or my_date.weekday() >= 5:
         my_date += timedelta(days=-1)
 
     return my_date
@@ -151,7 +154,7 @@ def first_bizday_of_month(systime: datetime) -> date:
 
     my_date = systime.date().replace(day=1)
     us_holidays = holidays.UnitedStates()
-    while my_date in us_holidays or my_date.weekday() >= 5:
+    while((my_date in us_holidays or my_date in Setting.holidays_yes) and my_date not in Setting.holidays_no)  or my_date.weekday() >= 5:
         my_date += timedelta(days=1)
     return my_date
 
@@ -186,7 +189,7 @@ def next_bizday(systime: datetime) -> date:
 
     my_date = systime.date() + timedelta(days=1)
     us_holidays = holidays.UnitedStates()
-    while my_date in us_holidays or my_date.weekday() >= 5:
+    while ((my_date in us_holidays or my_date in Setting.holidays_yes) and my_date not in Setting.holidays_no)  or my_date.weekday() >= 5:
         my_date += timedelta(days=1)
     return my_date
 

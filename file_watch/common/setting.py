@@ -1,5 +1,6 @@
 import logging
 from typing import Optional
+from datetime import date
 
 
 class Setting:
@@ -10,6 +11,8 @@ class Setting:
     job_name: Optional[str] = None
     log_file_path: Optional[str] = None
     # job_config_path: str = None
+    holidays_yes: list[date] = []
+    holidays_no: list[date] = []
 
     @classmethod
     def print_log(cls) -> None:

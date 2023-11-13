@@ -11,6 +11,7 @@ The file watcher is for watching, validating and transferring one or multiple fi
 Multi date-tokens for filename(s), 
 added decompress feature with new column `files_decompress` (supporting .gz and .zip)
 fixed S3 to UNC copy error caused Path.resolve(). Randomly for UNC Path.resolve() adds \\?\UNC\ before \applicationfs.awsad.allspringglobal.com\{appID} causing S3 to FSX copy error. Using Path.absolute() fix the issue. 
+added optional file_watch_calendar table, so that holiday can be overriden with TRUE or FALSE flag.
 * branch 0.1.9  (Nov 01, 2023): Remi team requested new date-token `nextBizDay`, I also added `nextWeekDay` and `nextDay`
 * branch 0.1.8  (Oct 17, 2023): GPARMS team came across an random FSX issue, had to change from .resolve() to .absolute() for line 105. It's not well documented function. Use it at your own risk. This branch is not checked in master
 * version 0.1.7 (Oct 3, 2023): changed exit code to 12345 when file not found and file_required=0
@@ -84,6 +85,7 @@ i.e.  `s3://allspring-us-east-1-s3-sftp-storage/wellsfargo/AGTPS/prod/inbound/`
 * exclude_processed_files: optional bit (boolean) field, if it's set to 1, it turns on the logic to ignore already processed file(s) by looking up `last_processed_file_datetime` column
 * file_required: optional bit (boolean) fields, if it's NULL or 1, the file is required for the app. If during the wait/polling period, file(s) doesn't arrive, the app will return a non-zero code causing Autosys job fail. If it's set to be 0, the Autosys job won't fail if file doesn't arrive during the wait period (it will silently return `12345` without throwing error).
 * files_decompress: optional comma seperated list of file-extension that need to be decompressed, i.e `.zip,.gz` (introduced in version 0.1.10)
+* calendar_name: optional holiday calendar by key 'calendar_name' to tell if it's a TRUE holiday or FALSE holiday. By default file_watch use federal US Holidays calulated from Python module. To check what are the default US holidays by file_watch program, you can run the command `python -m file_watch.util.holiday 2023`, for which 2023 is the year parameter. (introduced in version 0.1.10)
 
 ### Executing program
 
