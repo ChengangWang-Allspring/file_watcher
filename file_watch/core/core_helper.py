@@ -88,7 +88,7 @@ def get_job_config_db(job_name: str) -> dict:
             while("" in my_dict['files_decompress']):
                 my_dict['files_decompress'].remove("")
         if 'calendar_name' in my_dict.keys() and isinstance(my_dict['calendar_name'], str):
-            if my_dict['calendar_name'] != None:
+            if my_dict['calendar_name'] != None and my_dict['calendar_name'].strip()!='':
                 try:
                     log = logging.getLogger()
                     cursor.execute(f'select date from file_watch_calendar where calendar_name = ? and is_holiday=1 and (date between DATEADD(year,-1,GETDATE()) and DATEADD(year,1,GETDATE()))', my_dict['calendar_name'])
@@ -100,7 +100,9 @@ def get_job_config_db(job_name: str) -> dict:
                     log.info(f'Yes-Holiday overrides from table "file_watch_calendar" for calendar_name "{my_dict["calendar_name"]}"')
                     log.info(','.join([date.strftime('%Y-%m-%d') for date in Setting.holidays_yes ]))      
                     log.info(f'Not-Holiday overrides from table "file_watch_calendar" for calendar_name "{my_dict["calendar_name"]}"')
-                    log.info(','.join([date.strftime('%Y-%m-%d') for date in Setting.holidays_no ]))                
+                    log.info(','.join([date.strftime('%Y-%m-%d') for date in Setting.holidays_no ]))
+                    if len(Setting.holidays_yes) + len(Setting.holidays_no) == 0:
+                        log.warning('Incorrect calender_name. No holiday entries found in dbo.file_watch_calender')                
                 except Exception as ex:
                     log.warning(f'Error selecting calendar_name from file_watch_calendar: {my_dict["calendar_name"]}')
                     log.warning(ex)
