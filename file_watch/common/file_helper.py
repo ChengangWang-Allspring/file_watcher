@@ -22,7 +22,7 @@ def get_log_file_path(job_name: str) -> str:
     path = Path(__file__).parent.parent
     str_date = datetime.today().strftime('%Y-%m-%d')
     path = (
-        path.joinpath(Constant.LOGS_RELATIVE_PATH).joinpath(f'{job_name}_{str_date}.log').resolve()
+        path.joinpath(Constant.LOGS_RELATIVE_PATH).joinpath(f'{job_name}_{str_date}.log').absolute()
     )
     return str(path)
 
@@ -103,24 +103,24 @@ def copy_file_by_path_type(config: ValidJobConfig, file_name: str) -> None:
             # s3 to local/UNC download
             source_bucket, source_prefix = s3_helper.get_s3_bucket_prefix_by_uri(config.source_path)
             source_key = source_prefix + file_name
-            copy_file_path = Path(config.target_path).joinpath(file_name).resolve()
+            #copy_file_path = Path(config.target_path).joinpath(file_name).resolve()
             copy_file_path_2 = Path(config.target_path).joinpath(file_name).absolute()
             log = logging.getLogger()
-            log.debug(f'S3 to local/UNC copy target path using resolve() : {str(copy_file_path)} ')
+            #log.debug(f'S3 to local/UNC copy target path using resolve() : {str(copy_file_path)} ')
             log.debug(f'S3 to local/UNC copy target path using absolute(): {str(copy_file_path_2)} ')            
             s3_helper.copy_files_s3_2_local(source_bucket, source_key, str(copy_file_path_2))
     else:
         if config.effective_target_path_type == PathType.S3_PATH:
             # local/UNC to s3 upload
-            source_file_path = Path(config.source_path).joinpath(file_name).resolve()
+            source_file_path = Path(config.source_path).joinpath(file_name).absolute()
             copy_bucket, copy_prefix = s3_helper.get_s3_bucket_prefix_by_uri(config.target_path)
             copy_key = copy_prefix + file_name
             s3_helper.copy_files_local_2_s3(str(source_file_path), copy_bucket, copy_key)
 
         else:
             # local to local copy including UNC path
-            source_file_path = Path(config.source_path).joinpath(file_name).resolve()
-            copy_file_path = Path(config.target_path).joinpath(file_name).resolve()
+            source_file_path = Path(config.source_path).joinpath(file_name).absolute()
+            copy_file_path = Path(config.target_path).joinpath(file_name).absolute()
             copy_files_local_2_local(str(source_file_path), str(copy_file_path))
 
 
@@ -154,13 +154,13 @@ def archive_file_by_path_type(config: ValidJobConfig, file_name: str) -> None:
             # s3 to local download
             source_bucket, source_prefix = s3_helper.get_s3_bucket_prefix_by_uri(config.source_path)
             source_key = source_prefix + file_name
-            archive_file_path = Path(config.archive_path).joinpath(file_name).resolve()
+            archive_file_path = Path(config.archive_path).joinpath(file_name).absolute()
             s3_helper.copy_files_s3_2_local(source_bucket, source_key, str(archive_file_path))
 
     else:
         if config.effective_archive_path_type == PathType.S3_PATH:
             # local to s3 upload
-            source_file_path = Path(config.source_path).joinpath(file_name).resolve()
+            source_file_path = Path(config.source_path).joinpath(file_name).absolute()
             archive_bucket, archive_prefix = s3_helper.get_s3_bucket_prefix_by_uri(
                 config.archive_path
             )
@@ -169,8 +169,8 @@ def archive_file_by_path_type(config: ValidJobConfig, file_name: str) -> None:
 
         else:
             # local to local copy including UNC path
-            source_file_path = Path(config.source_path).joinpath(file_name).resolve()
-            archive_file_path = Path(config.archive_path).joinpath(file_name).resolve()
+            source_file_path = Path(config.source_path).joinpath(file_name).absolute()
+            archive_file_path = Path(config.archive_path).joinpath(file_name).absolute()
             copy_files_local_2_local(str(source_file_path), str(archive_file_path))
 
 
@@ -203,7 +203,7 @@ def decompress_files(config: ValidJobConfig, files: list) -> None:
     i: int = 0
     for file_name in files:
         if file_name.lower().endswith('.gz') and '.gz' in config.files_decompress:
-            target_file_path_gz = str( Path(config.target_path).joinpath(file_name).resolve())
+            target_file_path_gz = str( Path(config.target_path).joinpath(file_name).absolute())
             log.info(f'Decompressing {target_file_path_gz} ... ')
             target_file_path = target_file_path_gz[:-3]
             fp = open(target_file_path, "wb")
@@ -216,7 +216,7 @@ def decompress_files(config: ValidJobConfig, files: list) -> None:
             os.remove(target_file_path_gz)
             log.info(f'Deleted original compressed file: {target_file_path_gz}  ') 
         elif file_name.lower().endswith('.zip') and '.zip' in config.files_decompress:
-            target_file_path_zip = str(Path(config.target_path).joinpath(file_name).resolve())
+            target_file_path_zip = str(Path(config.target_path).joinpath(file_name).absolute())
             log.info(f'Decompressing {target_file_path_zip} ... ')
             shutil.unpack_archive(target_file_path_zip, config.target_path, 'zip')
             i = i+1
