@@ -50,7 +50,7 @@ GO
 
 CREATE TABLE [dbo].[file_watch_config_audit](	
     [id] [BIGINT] IDENTITY(1,1) NOT NULL,
-	[job_name] [varchar](150) NOT NULL,
+	[job_name] [varchar](100) NOT NULL,
 	[app_id] [varchar](10) NOT NULL,
 	[job_description] [varchar](200) NULL,
 	[file_names] [varchar](max) NOT NULL,

@@ -16,7 +16,7 @@ values
 insert file_watch_config_test
   (job_name, app_id, job_description, file_names, file_count, source_path, sleep_time,look_time)
 values
-  ('test_2', 'TEST', 'Test UNC path, single file', 'RIC_APX_Holdings_{yyyyMMdd}.dat', 1, '\\10.24.38.59\Deployments\test_inbound', 5, 20 )
+  ('test_2', 'TEST', 'Test UNC path, single file', 'RIC_APX_Holdings_{yyyyMMdd}.dat', 1, '\\Applicationfs.awsad.allspringglobal.com\FUNFI\Temp\Inbound', 5, 20 )
 
 -- test_3: Test S3 path, single file  
 insert file_watch_config_test

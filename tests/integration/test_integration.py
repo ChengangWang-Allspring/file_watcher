@@ -65,9 +65,9 @@ def mock_deliver_local_files(
                     Path(source_path).joinpath(file).touch(exist_ok=True)
                 else:
                     Path(LOCAL_TEMP_PATH).joinpath(file).touch(exist_ok=True)
-                    str_file_path = Path(LOCAL_TEMP_PATH).joinpath(file).resolve()
+                    str_file_path = Path(LOCAL_TEMP_PATH).joinpath(file).absolute()
                     os.utime(str_file_path, (1330712280, 1330712292))
-                    shutil.move(str_file_path, Path(source_path).joinpath(file).resolve())
+                    shutil.move(str_file_path, Path(source_path).joinpath(file).absolute())
                 print(f'############# Mock file delivered to "{source_path}": {file} ...')
                 delivered_count += 1
 
@@ -86,9 +86,9 @@ def mock_deliver_local_files(
                     Path(source_path).joinpath(real_file).touch(exist_ok=True)
                 else:
                     Path(LOCAL_TEMP_PATH).joinpath(real_file).touch(exist_ok=True)
-                    str_file_path = Path(LOCAL_TEMP_PATH).joinpath(real_file).resolve()
+                    str_file_path = Path(LOCAL_TEMP_PATH).joinpath(real_file).absolute()
                     os.utime(str_file_path, (1330712280, 1330712292))
-                    shutil.move(str_file_path, Path(source_path).joinpath(real_file).resolve())
+                    shutil.move(str_file_path, Path(source_path).joinpath(real_file).absolute())
                 print(f'############# Mock file delivered to "{source_path}": {real_file} ...')
                 delivered_count += 1
 
@@ -123,7 +123,7 @@ def mock_deliver_s3_files(file_names: List[str], file_count: int, source_path: s
                 )
                 Path(LOCAL_TEMP_PATH).joinpath(file).touch(exist_ok=True)
                 s3 = boto3.resource('s3')
-                source_path_str = Path(LOCAL_TEMP_PATH).joinpath(file).resolve()
+                source_path_str = Path(LOCAL_TEMP_PATH).joinpath(file).absolute()
                 key = prefix + file
                 s3.meta.client.upload_file(source_path_str, bucket, key)
                 print(f'############# Mock file delivered to "{source_path}": {file} ...')
@@ -141,7 +141,7 @@ def mock_deliver_s3_files(file_names: List[str], file_count: int, source_path: s
                 )
                 Path(LOCAL_TEMP_PATH).joinpath(real_file).touch(exist_ok=True)
                 s3 = boto3.resource('s3')
-                source_path_str = Path(LOCAL_TEMP_PATH).joinpath(real_file).resolve()
+                source_path_str = Path(LOCAL_TEMP_PATH).joinpath(real_file).absolute()
                 key = prefix + real_file
                 s3.meta.client.upload_file(source_path_str, bucket, key)
                 print(f'############# Mock file delivered to "{source_path}": {real_file} ...')
@@ -209,7 +209,7 @@ def test_execute_job(
     log_file_path = file_helper.get_log_file_path(job_name)
 
     mock_file_deliver_thread = None
-    if source_path_type == PathType.LOCAL_PATH:
+    if source_path_type == PathType.LOCAL_PATH or source_path_type == PathType.UNC_PATH :
         patch_mode_date = False
         if job_name == 'INTGR_TEST_8':  # hard coded logic to patch modified date for Test_8 files
             patch_mode_date = True

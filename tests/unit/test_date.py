@@ -6,7 +6,7 @@ from file_watch.core.date_core import cnv_csharp_date_fmt as cnv_fmt
 from file_watch.core.date_core import datetime_offset as offset
 from file_watch.core.date_core import split_date_token_fmt as split
 from file_watch.core.date_core import parse_format_date as pf
-
+from file_watch.common.setting import Setting  
 
 @pytest.mark.date_test
 @pytest.mark.parametrize(
@@ -196,3 +196,12 @@ def test_parse_format_date():
     assert pf(datetime(2022, 1, 15), 'firsBizDayOfMnth', 'yyyy_MM_dd') == '2022_01_03'
     assert pf(datetime(2022, 1, 15), 'firsDayOfMnth', 'yyyy_MM_dd') == '2022_01_01'
 
+
+@pytest.mark.date_test
+def test_holiday_override():
+    Setting.holidays_yes = []
+    Setting.holidays_no = []
+    assert dp.prev_bizday(datetime(2023, 11, 13)) == date(2023, 11, 9)
+    Setting.holidays_no = [datetime(2023, 11, 10)]
+    assert  datetime(2023, 11, 10) in Setting.holidays_no
+    #assert dp.prev_bizday(datetime(2023, 11, 13)) == date(2023, 11, 10)

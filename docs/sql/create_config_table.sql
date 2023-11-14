@@ -10,7 +10,7 @@ GO
 
 CREATE TABLE [dbo].[file_watch_config]
 (
-	[job_name] [VARCHAR](50) NOT NULL,
+	[job_name] [VARCHAR](100) NOT NULL,
 	[app_id] [VARCHAR](10) NOT NULL,
 	[job_description] [VARCHAR](200) NULL,
 	[file_names] [VARCHAR](max) NOT NULL,
@@ -83,7 +83,7 @@ GO
 
 CREATE TABLE [dbo].[file_watch_config_test]
 (
-	[job_name] [VARCHAR](50) NOT NULL,
+	[job_name] [VARCHAR](100) NOT NULL,
 	[app_id] [VARCHAR](10) NOT NULL,
 	[job_description] [VARCHAR](200) NULL,
 	[file_names] [VARCHAR](max) NOT NULL,
