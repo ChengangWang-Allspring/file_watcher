@@ -6,7 +6,7 @@ from file_watch.core.date_core import cnv_csharp_date_fmt as cnv_fmt
 from file_watch.core.date_core import datetime_offset as offset
 from file_watch.core.date_core import split_date_token_fmt as split
 from file_watch.core.date_core import parse_format_date as pf
-from file_watch.common.setting import Setting  
+from file_watch.common import setting
 
 @pytest.mark.date_test
 @pytest.mark.parametrize(
@@ -199,9 +199,22 @@ def test_parse_format_date():
 
 @pytest.mark.date_test
 def test_holiday_override():
-    Setting.holidays_yes = []
-    Setting.holidays_no = []
+    setting.Setting.holidays_yes = []
     assert dp.prev_bizday(datetime(2023, 11, 13)) == date(2023, 11, 9)
-    Setting.holidays_no = [datetime(2023, 11, 10)]
-    assert  datetime(2023, 11, 10) in Setting.holidays_no
-    #assert dp.prev_bizday(datetime(2023, 11, 13)) == date(2023, 11, 10)
+    setting.Setting.holidays_no = [date(2023, 11, 10)]
+    assert dp.prev_bizday(datetime(2023, 11, 13)) == date(2023, 11, 10)
+    setting.Setting.holidays_no = [date(2023, 11, 10),date(2023, 12, 25)]
+    assert dp.prev_bizday(datetime(2023, 12, 26)) == date(2023, 12, 25)
+    setting.Setting.holidays_no = []
+    setting.Setting.holidays_yes = [date(2023, 11, 9)]
+    assert dp.prev_bizday(datetime(2023, 11, 13)) == date(2023, 11, 8)
+    setting.Setting.holidays_yes = [date(2023, 10, 31),date(2023, 11, 14),date(2023,11,1)]
+    assert dp.last_bizday_of_last_month(datetime(2023, 11, 13)) == date(2023, 10, 30)
+    assert dp.next_bizday(datetime(2023, 11, 13)) == date(2023, 11, 15)
+    assert dp.first_bizday_of_month(datetime(2023, 11, 13)) == date(2023, 11, 2)
+    setting.Setting.holidays_yes = []
+    setting.Setting.holidays_no = []
+
+
+
+
