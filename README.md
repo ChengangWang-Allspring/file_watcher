@@ -7,6 +7,7 @@ A file watcher application build in Python, as a supplement for the Autosys work
 The file watcher is for watching, validating and transferring one or multiple files from a source location (S3 bucket or network share), to application inbound folder on EC2 server. The current build is only tested in Windows Server. 
 
 ## Version History
+* branch 0.1.11 (Dec 14, 2023): Fixed a bug related to "exclude_processed_files" feature. Last modified date-time on windows OS is microseconds-precision, whereas SQL Server is milli-seconds precision. Previously this caused the same file on FSX share copied again and again. 
 * branch 0.1.10 (Nov 15, 2023): 
 Multi date-tokens for filename(s), 
 added decompress feature with new column `files_decompress` (supporting .gz and .zip)
