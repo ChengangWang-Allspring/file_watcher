@@ -34,6 +34,14 @@ def get_last_modified(file_name: str, source_path: str) -> datetime:
     stats = os.stat(file_path)
     return datetime.fromtimestamp(stats.st_mtime)
 
+def trim_to_milliseconds(dt: datetime) -> datetime:
+    """trim a microsecond-precision datetime to millisecopnd-precision datetime
+        this is needed to compare a Windows OS file datetime vs SQL Server datetime
+    """
+
+    formatted_datetime = dt.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+    trimmed_datetime = datetime.strptime(formatted_datetime, '%Y-%m-%d %H:%M:%S.%f')
+    return trimmed_datetime
 
 def get_file_size(file_name: str, source_path: str) -> int:
     """return file size for a single file"""

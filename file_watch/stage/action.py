@@ -66,7 +66,7 @@ def perform_watch() -> List[str]:
                 if config.effective_source_path_type == PathType.S3_PATH:
                     file_date = tz_helper.utc_to_local(date_dict[file]).replace(tzinfo=None)
                 else:
-                    file_date = date_dict[file]
+                    file_date = file_helper.trim_to_milliseconds(date_dict[file])
                 log.debug(f'last_modified_datetime for {file}: {file_date.isoformat()}')
 
                 if (
