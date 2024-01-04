@@ -25,7 +25,7 @@ GO
 IF NOT EXISTS (SELECT 1 FROM sys.objects o
           INNER JOIN sys.columns c ON o.object_id = c.object_id
           WHERE o.name = 'file_watch_config' AND c.name = 'last_upd_user')
-	ALTER TABLE [dbo].[file_watch_config] ADD [last_upd_user] [NVARCHAR](100) NOT NULL DEFAULT USER_NAME()
+	ALTER TABLE [dbo].[file_watch_config] ADD [last_upd_user] [NVARCHAR](100) NOT NULL DEFAULT SUSER_NAME()
 GO	
 
 IF NOT EXISTS (SELECT 1 FROM sys.objects o
@@ -37,7 +37,7 @@ GO
 IF NOT EXISTS (SELECT 1 FROM sys.objects o
           INNER JOIN sys.columns c ON o.object_id = c.object_id
           WHERE o.name = 'file_watch_config' AND c.name = 'create_user')
-	ALTER TABLE [dbo].[file_watch_config] ADD [create_user] [NVARCHAR](100) NOT NULL DEFAULT USER_NAME()
+	ALTER TABLE [dbo].[file_watch_config] ADD [create_user] [NVARCHAR](100) NOT NULL DEFAULT SUSER_NAME()
 GO
 PRINT '@@@@@@@@@Done --alter file_watch_config add last update and create user cols'
 
