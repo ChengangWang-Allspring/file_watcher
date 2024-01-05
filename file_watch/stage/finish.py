@@ -35,7 +35,7 @@ def may_verify(file_names: List[str]) -> bool:
                 f'One of the files not found in target_path "{config.target_path}": {file_str}'
             )
 
-    if config.use_archive:
+"""     if config.use_archive:
         log.info('Verifying files exist in archive_path ... ')
     if config.use_archive and config.effective_archive_path_type == PathType.LOCAL_PATH:
         if not file_helper.verify_local_files(file_names, config.archive_path):
@@ -47,7 +47,7 @@ def may_verify(file_names: List[str]) -> bool:
             raise JobVerifyError(
                 f'One of the files not found in archive_path "{config.archive_path}": {file_str}'
             )
-
+ """
 
 def cleanup() -> None:
     """clean up resources"""

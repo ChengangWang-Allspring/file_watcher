@@ -92,6 +92,27 @@ def copy_files_local_2_local(source_file_path: str, dest_file_path: str) -> None
 
     shutil.copy2(source_file_path, dest_file_path)
 
+def archive_files_local_2_local(source_file_path: str, dest_file_path: str) -> None:
+    """archive/move files from UNC/local to UNC/local and append timestamp"""
+
+    shutil.copy2(source_file_path, get_unique_archive_file_path(dest_file_path))
+
+def get_unique_archive_file_path(full_filepath: str) -> str:
+    """append '_{yyyyMMdd}_{HHmmssfff}.${ext}' to the original filenames for uniqueness """
+
+    directory, filename_with_ext = os.path.split(full_filepath)
+    filename, extension = os.path.splitext(filename_with_ext)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S%f")
+    new_filename = f'{filename}_{timestamp}{extension}'
+    return os.path.join(directory, new_filename)
+
+def get_unique_archive_file_name(filename_with_ext: str) -> str:
+    """append '_{yyyyMMdd}_{HHmmssfff}.${ext}' to the original filenames for uniqueness """
+
+    filename, extension = os.path.splitext(filename_with_ext)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S%f")
+    new_filename = f'{filename}_{timestamp}{extension}'
+    return new_filename
 
 def copy_file_by_path_type(config: ValidJobConfig, file_name: str) -> None:
     """select corresponding function to call based on source and destination PathType"""
@@ -153,7 +174,7 @@ def archive_file_by_path_type(config: ValidJobConfig, file_name: str) -> None:
                 config.archive_path
             )
             source_key = source_prefix + file_name
-            archive_key = archive_prefix + file_name
+            archive_key = archive_prefix + get_unique_archive_file_name(file_name)
             s3_helper.copy_files_s3_2_s3(source_bucket, source_key, archive_bucket, archive_key)
 
         else:
@@ -161,23 +182,25 @@ def archive_file_by_path_type(config: ValidJobConfig, file_name: str) -> None:
             source_bucket, source_prefix = s3_helper.get_s3_bucket_prefix_by_uri(config.source_path)
             source_key = source_prefix + file_name
             archive_file_path = Path(config.archive_path).joinpath(file_name).absolute()
-            s3_helper.copy_files_s3_2_local(source_bucket, source_key, str(archive_file_path))
+            s3_helper.copy_files_s3_2_local(source_bucket, source_key, get_unique_archive_file_name(str(archive_file_path)))
 
     else:
         if config.effective_archive_path_type == PathType.S3_PATH:
-            # local to s3 upload
+            # local to s3 upload and remove from source_path !!!
             source_file_path = Path(config.source_path).joinpath(file_name).absolute()
             archive_bucket, archive_prefix = s3_helper.get_s3_bucket_prefix_by_uri(
                 config.archive_path
             )
-            archive_key = archive_prefix + file_name
+            archive_key = archive_prefix + get_unique_archive_file_name(file_name)
             s3_helper.copy_files_local_2_s3(str(source_file_path), archive_bucket, archive_key)
+            os.remove(source_file_path)
 
         else:
-            # local to local copy including UNC path
+            # local to local move including UNC path (removing from source_path!!!)
             source_file_path = Path(config.source_path).joinpath(file_name).absolute()
             archive_file_path = Path(config.archive_path).joinpath(file_name).absolute()
-            copy_files_local_2_local(str(source_file_path), str(archive_file_path))
+            archive_files_local_2_local(str(source_file_path), str(archive_file_path))
+            os.remove(source_file_path)
 
 
 def verify_local_files(file_names: List[str], file_path: str) -> bool:

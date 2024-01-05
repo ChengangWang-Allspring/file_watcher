@@ -104,7 +104,7 @@ values
 insert file_watch_config_test
   (job_name, app_id, job_description, file_names, file_count, source_path, sleep_time,look_time, use_copy, target_path, use_archive, archive_path)
 values
-  ('test_16', 'TEST', 'Test copy_files from s3 to local, then archive to s3', 'RIC_APX_*_{yyyyMMdd}.dat', 5, 's3://allspring-us-east-1-s3-sftp-storage/wellsfargo/AGTPS/prod/inbound/', 10, 20, 1, 'C:\cwang\Apps\inbound', 1, 's3://s3-agtps01-use-dev/AGTPS/Archive/inbound/' )
+  ('test_16', 'TEST', 'Test copy_files from s3 to local, then archive to s3', 'RIC_APX_*_{yyyyMMdd}.dat', 5, 's3://s3-agtps01-use-dev/AGTPS/inbound/', 10, 20, 1, 'C:\cwang\Apps\inbound', 1, 's3://s3-agtps01-use-dev/AGTPS/Archive/inbound/' )
 
 -- test_17: Test min_size local
 insert file_watch_config_test

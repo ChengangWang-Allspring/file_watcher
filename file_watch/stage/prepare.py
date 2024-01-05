@@ -5,6 +5,7 @@ import logging
 from datetime import datetime
 from typing import List
 
+from file_watch import version
 from file_watch.common import file_helper
 from file_watch.common.enum_const import Constant, JobConfigType
 from file_watch.common.setting import Setting
@@ -23,7 +24,7 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     <job_name>.yml configuration file has to be in /conf folder.
     """
 
-    parser = argparse.ArgumentParser(description='File_watch runner for Autotys jobs')
+    parser = argparse.ArgumentParser(description=f'File Watcher Application v{version.__version__}')
     parser.add_argument('job_name', help='job_name for file watcher to run ')
     parser.add_argument(
         '--db',
@@ -69,6 +70,7 @@ def welcome() -> None:
     log = logging.getLogger()
     log.info(Constant.ASCII_ART_LOGO)
     log.info('Welcome to use the "file_watch" application!')
+    log.info(f'Version: {version.__version__}')
 
 
 def load_job_config() -> None:
