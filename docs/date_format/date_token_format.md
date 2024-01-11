@@ -18,8 +18,9 @@ List of supported date token
 Date Token | Meaning 
 :------------ | :------------------ 
 'today' | current date
-'today_Pm' | yesterday before 8pm, today after 8pm
+'todayPm' | yesterday before 8pm, today after 8pm
 'prevWeekDay' | previous week day 
+'prevWeekDayPm' | previous weekday using todayPm logic
 'prevDay' | previous day  
 'prevBizDay'| previous business day
 'lastBizDayOfPrevMnth'  |  last business day of last month
@@ -27,5 +28,6 @@ Date Token | Meaning
 'firsBizDayOfMnth' | first business day of the current month
 'firsDayOfMnth'  | first day of the current month
 'nextWeekDay' | next week day 
+'nextWeekDayPm' | next weekday using todayPm logic
 'nextDay' | next day  
 'nextBizDay'| next business day
