@@ -112,6 +112,18 @@ def prev_weekday(systime: datetime) -> date:
         diff = 1
     return sysdate - timedelta(days=diff)
 
+def prev_weekday_pm(systime: datetime) -> date:
+    """last week day using weekday() function. legacy token if hour before 20:00 use previous date"""
+
+    sysdate = (systime + timedelta(hours=TODAY_PM_OFFSET_HOURS)).date()
+    if sysdate.weekday() == 0:
+        diff = 3
+    elif sysdate.weekday() == 6:
+        diff = 2
+    else:
+        diff = 1
+    return sysdate - timedelta(days=diff)
+
 
 def prev_day(systime: datetime) -> date:
     """previous day"""
@@ -177,6 +189,18 @@ def next_weekday(systime: datetime) -> date:
         diff = 1
     return sysdate + timedelta(days=diff)
 
+def next_weekday_pm(systime: datetime) -> date:
+    """next week day using weekday() function. legacy token if hour before 20:00 use previous date"""
+
+    sysdate = (systime + timedelta(hours=TODAY_PM_OFFSET_HOURS)).date()
+    if sysdate.weekday() == 4:
+        diff = 3
+    elif sysdate.weekday() == 5:
+        diff = 2
+    else:
+        diff = 1
+    return sysdate + timedelta(days=diff)
+
 
 def next_day(systime: datetime) -> date:
     """next day"""
@@ -199,15 +223,17 @@ date_token_dict: Dict[str, Callable[[datetime], date]] = {
     'today': today,
     'todaypm': today_pm,
     'prevweekday': prev_weekday,  # previous work day
+    'prevweekdaypm': prev_weekday_pm, #previous weekday using pm offset
     'prevday': prev_day,  # previous day
     'prevbizday': prev_bizday,  # previous business day
     'lastbizdayofprevmnth': last_bizday_of_last_month,  # last business day of last month
     'lastdayofprevmnth': last_day_of_last_month,  # last day of last month
     'firsbizdayofmnth': first_bizday_of_month,  # first business day of the current month
     'firsdayofmnth': first_day_of_month,  # first day of the current month
-    'nextweekday': next_weekday,  # previous work day
-    'nextday': next_day,  # previous day
-    'nextbizday': next_bizday,  # previous business day
+    'nextweekday': next_weekday,  # next work day
+    'nextweekdaypm': next_weekday_pm,  # next work day using pm offset
+    'nextday': next_day,  # next day
+    'nextbizday': next_bizday,  # next business day
 }
 
 
