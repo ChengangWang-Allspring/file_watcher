@@ -1,3 +1,4 @@
+from asyncio.windows_events import NULL
 import boto3
 
 import os
@@ -6,6 +7,7 @@ import logging
 import shutil
 import fnmatch
 import gzip
+import time
 from pathlib import Path
 from datetime import datetime, timedelta
 from typing import Tuple, List, Dict
@@ -29,9 +31,12 @@ def get_log_file_path(job_name: str) -> str:
 
 def get_last_modified(file_name: str, source_path: str) -> datetime:
     """return last modifed datetime for a single file"""
-
-    file_path = os.path.join(source_path, file_name)
-    stats = os.stat(file_path)
+    
+    try: 
+        file_path = os.path.join(source_path, file_name)
+        stats = os.stat(file_path)
+    except: 
+        return None
     return datetime.fromtimestamp(stats.st_mtime)
 
 def trim_to_milliseconds(dt: datetime) -> datetime:
@@ -46,8 +51,11 @@ def trim_to_milliseconds(dt: datetime) -> datetime:
 def get_file_size(file_name: str, source_path: str) -> int:
     """return file size for a single file"""
 
-    file_path = os.path.join(source_path, file_name)
-    stats = os.stat(file_path)
+    try:
+        file_path = os.path.join(source_path, file_name)
+        stats = os.stat(file_path)
+    except:
+        return None
     return stats.st_size
 
 
@@ -56,8 +64,11 @@ def get_files_dicts_on_local(
 ) -> Tuple[List[str], Dict[str, datetime], Dict[str, int]]:
     """get files from local or UNC path"""
 
+    log = logging.getLogger()
     file_names = os.listdir(source_path)
     dup_path_list = [source_path] * len(file_names)
+    log.debug('After getting all file_names from OS, before getting modified dates and sizes ... ')
+    
     last_modified_list = list(map(get_last_modified, file_names, dup_path_list))
     size_list = list(map(get_file_size, file_names, dup_path_list))
 
