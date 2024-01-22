@@ -171,6 +171,49 @@ def test_next_bizday(txt_input, expected):
     in_date = datetime.strptime(txt_input, '%Y-%m-%d')
     out_date = datetime.strptime(expected, '%Y-%m-%d').date()
     assert dp.next_bizday(in_date) == out_date
+    
+
+@pytest.mark.date_test
+@pytest.mark.parametrize(
+    'txt_input, expected',
+    [
+        ('2023-12-22 19', '2023-12-22'),
+        ('2023-12-22 21', '2023-12-25'),
+        ('2023-12-27 19', '2023-12-27'),
+        ('2023-12-27 21', '2023-12-28'),
+        ('2023-12-23 19', '2023-12-25'),
+        ('2023-12-23 21', '2023-12-25'),
+        ('2023-12-24 19', '2023-12-25'),
+        ('2023-12-24 21', '2023-12-25'),
+        ('2023-12-25 19', '2023-12-25'),
+        ('2023-12-25 21', '2023-12-26'),
+    ],
+)
+def test_next_weekday_pm(txt_input, expected):
+    in_date = datetime.strptime(txt_input, '%Y-%m-%d %H')
+    out_date = datetime.strptime(expected, '%Y-%m-%d').date()
+    assert dp.next_weekday_pm(in_date) == out_date
+    
+@pytest.mark.date_test
+@pytest.mark.parametrize(
+    'txt_input, expected',
+    [
+        ('2023-12-22 19', '2023-12-20'),
+        ('2023-12-22 21', '2023-12-21'),
+        ('2023-12-27 19', '2023-12-25'),
+        ('2023-12-27 21', '2023-12-26'),
+        ('2023-12-23 19', '2023-12-21'),
+        ('2023-12-23 21', '2023-12-22'),
+        ('2023-12-24 19', '2023-12-22'),
+        ('2023-12-24 21', '2023-12-22'),
+        ('2023-12-25 19', '2023-12-22'),
+        ('2023-12-25 21', '2023-12-22'),
+    ],
+)
+def test_prev_weekday_pm(txt_input, expected):
+    in_date = datetime.strptime(txt_input, '%Y-%m-%d %H')
+    out_date = datetime.strptime(expected, '%Y-%m-%d').date()
+    assert dp.prev_weekday_pm(in_date) == out_date
 
 
 @pytest.mark.date_test
