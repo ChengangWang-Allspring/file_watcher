@@ -105,6 +105,7 @@ CREATE TABLE [dbo].[file_watch_config_test]
 	[last_processed_file_datetime] [DateTime] NULL,
 	[file_required] [BIT] NULL,
 	[files_decompress] [varchar] (20) NULL,
+	[calendar_name] [VARCHAR](50) NULL,
 	CONSTRAINT [PK_file_watch_config_test] PRIMARY KEY CLUSTERED 
 (
 	[job_name] ASC
