@@ -26,6 +26,9 @@ def run(argv: List[str]) -> int:
         # must perform watch
         files: List[str] = action.perform_watch()
 
+        # may perform clear readonly
+        action.may_clear_readonly(files)
+
         # may perform copy
         action.may_peform_copy(files)
 

@@ -2,9 +2,11 @@ import logging
 import fnmatch
 import time
 import sys
+import os
 from datetime import datetime
 from datetime import timedelta
 from typing import List
+from pathlib import Path
 
 from file_watch.common.enum_const import Constant, PathType
 from file_watch.common import file_helper, tz_helper
@@ -131,6 +133,23 @@ def perform_watch() -> List[str]:
                     )
                     log.info('EXIT 12345')
                     sys.exit(12345)
+
+
+def may_clear_readonly(file_list: List[str]) -> None:
+    """optionally clear readonly flag from source files on local or UNC share"""
+
+    config = config_cache.config
+
+    if Setting.clear_readonly and config.effective_source_path_type != PathType.S3_PATH:
+        log = logging.getLogger()
+        log.info('<<< Clearing read-only flags on source files ... >>>')
+        log.info(f'{"source_path"} : {config.source_path }')
+        for file_name in file_list:
+            source_file_path = Path(config.source_path).joinpath(file_name).absolute()
+            log.info(f'Clearing read-only flag on file: {file_name} ... ')
+            os.chmod(source_file_path,0o777)
+
+        log.info('=' * 80)
 
 
 def may_peform_copy(file_list: List[str]) -> None:

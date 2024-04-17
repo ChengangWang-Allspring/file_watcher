@@ -19,7 +19,7 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     File watch utility. Check README.md
 
     Example useage:
-        python -m file_watch [--db db_profile] [--debug]  <job_name>
+        python -m file_watch [--db db_profile] [--debug] [--clear-readonly] <job_name>
         required python version 3.11
     <job_name>.yml configuration file has to be in /conf folder.
     """
@@ -34,6 +34,9 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     parser.add_argument(
         '--debug', dest='debug', action='store_true', help='force debug level log message'
     )
+    parser.add_argument(
+        '--clear-readonly', dest='clear_readonly', action='store_true', help='clear readonly flag on the source files on local or UNC path'
+    )
     return parser.parse_args(argv[1:])
 
 
@@ -43,6 +46,7 @@ def parse_args_to_settings(argv: List[str]) -> None:
     args = parse_args(argv)
     Setting.job_name = args.job_name
     Setting.debug = args.debug
+    Setting.clear_readonly = args.clear_readonly
     Setting.db_profile = args.db_profile
 
 
