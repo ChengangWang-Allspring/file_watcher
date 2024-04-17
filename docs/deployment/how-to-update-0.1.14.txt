@@ -1,0 +1,4 @@
+1. From an EC2 with existing file_watch configured.
+2. Map a drive to \\Applicationfs.awsad.allspringglobal.com\FUNFI\Build_Artifacts, for example drive "F:"
+3. from F:\file_watch_0_1_14 in commmand prompt, run "update_file_watch.bat".
+Note: this update batch script won't update "config" folder, which usually contains database connection string. It won't update "logs" folder either
