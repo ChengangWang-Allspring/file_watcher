@@ -1,3 +1,5 @@
+import os
+
 import pyodbc
 
 import re
@@ -190,3 +192,25 @@ def update_db_last_processed_file_datetime(job_name: str, my_datetime: datetime)
     finally:
         cursor.close()
         conn.close()
+
+
+# Method takes a given string and looks for any instances of variables to be replaced.
+# Variables to be replaced are denoted the <% prefix and %> suffix.  So <%variable_name%>.
+# If it doesn't find any instances, it just returns the given string.
+# If it does find any instances, it replaces them with the current value of the environment variable name between them
+# If there is no ENV variable on the stack, it returns None
+def get_string_with_actual_value_of_env_variable(value):
+    return_value: str = value
+    if value is not None:
+        variable_delimiter_start: int = return_value.find('<%')
+        variable_delimiter_end: int = return_value.find('%>')
+
+        if (variable_delimiter_start != -1) and (variable_delimiter_end != -1):
+            variable_to_replace: str = return_value[variable_delimiter_start:(variable_delimiter_end + 2)]
+            env_var: str = variable_to_replace[2:-2]
+            current_env: str = os.environ.get(env_var)
+            if current_env is None:
+                return_value = None
+            else:
+                return_value = return_value.replace(variable_to_replace, current_env)
+    return return_value

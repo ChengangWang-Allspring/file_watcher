@@ -1,3 +1,5 @@
+import os
+import string
 from pydantic import BaseModel, validator, root_validator
 
 import logging
@@ -99,7 +101,7 @@ class ValidJobConfig(BaseModel):
         if value is not None and value < 1:
             raise ValueError('value must be greater or equal than 1')
         return value
-
+    
     @validator('target_path', always=True)
     @classmethod
     def validate_target_path(cls, value: Any, values: dict) -> Any:
@@ -109,6 +111,19 @@ class ValidJobConfig(BaseModel):
         if use_copy and value is None:
             raise ValueError('target_path is required if use_copy is true')
         return value
+    
+    @validator('source_path', 'target_path', 'archive_path',  always=True)
+    @classmethod
+    def validate_path_env_variables(cls, value: Any) -> Any:
+        """if an environment variable is included in the source, target or archive path, it must be on the stack"""
+        return_value: str = value
+        if value is not None:
+            return_value = core_helper.get_string_with_actual_value_of_env_variable(value)
+            if return_value is None:
+                raise ValueError('target_path contains environment variable ENV, but env variable is not on the stack.')
+
+        return return_value
+
 
     @validator('archive_path', always=True)
     @classmethod
@@ -162,6 +177,10 @@ class ValidJobConfig(BaseModel):
         """parse path_type, this validator is required for derived fields"""
 
         source_path: str = values.get('source_path')
+        if source_path is not None:
+            source_path = core_helper.get_string_with_actual_value_of_env_variable(source_path)
+            # No need to check to see if the env variable was actually found on the stack since that was already done in the validate_path_env_variables method.
+
         path_type: PathType = core_helper.validate_path_type(source_path)
         if path_type == PathType.NONE:
             raise ValueError('cannot derive effective_source_path_type from source_path')
@@ -174,8 +193,12 @@ class ValidJobConfig(BaseModel):
     def validate_effective_target_path_type(cls, values: dict) -> dict:
         """parse path_type, this validator is required for derived fields"""
 
-        use_copy: bool = values.get('use_copy', False)
         target_path: str = values.get('target_path', None)
+        if target_path is not None:
+            target_path = core_helper.get_string_with_actual_value_of_env_variable(target_path)
+            # No need to check to see if the env variable was actually found on the stack since that was already done in the validate_path_env_variables method.
+
+        use_copy: bool = values.get('use_copy', False)
         path_type: PathType = PathType.NONE
         if use_copy:
             path_type = core_helper.validate_path_type(target_path)
@@ -190,8 +213,12 @@ class ValidJobConfig(BaseModel):
     def validate_effective_archive_path_type(cls, values: dict) -> dict:
         """parse path_type, this validator is required for derived fields"""
 
-        use_archive = values.get('use_archive', False)
-        archive_path = values.get('archive_path')
+        archive_path: str = values.get('archive_path', None)
+        if archive_path is not None:
+            archive_path = core_helper.get_string_with_actual_value_of_env_variable(archive_path)
+            # No need to check to see if the env variable was actually found on the stack since that was already done in the validate_path_env_variables method.
+
+        use_archive: bool = values.get('use_archive', False)
         path_type = PathType.NONE
         if use_archive:
             path_type = core_helper.validate_path_type(archive_path)
@@ -229,11 +256,6 @@ class ValidJobConfig(BaseModel):
 
         values['effective_file_names'] = eff_file_names
         return values
-
-
-    
-
-
 
 
     def print_all_variables(self) -> None:
