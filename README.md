@@ -1,4 +1,4 @@
-# File Watcher CLI Application (version 0.1.14)
+# File Watcher CLI Application (version 0.1.15)
 
 A file watcher application build in Python, as a supplement for the Autosys workload scheduling. 
 
