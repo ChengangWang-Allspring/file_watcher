@@ -1,4 +1,6 @@
-PRINT 'SCRIPT FILE NAME: DEPLOY_AGTRR_AUTOSYS_FILEWATER_AUDIT_TBL_DDL.sql'
+
+
+PRINT 'SCRIPT FILE NAME: DEPLOY_AGRDR_FILEWATCHER_AUDIT_TBL_DDL.sql'
 GO
 PRINT 'SERVER NAME: ' + @@SERVERNAME
 GO
@@ -360,6 +362,22 @@ GO
 PRINT '@@@@@@@@@DONE --create file_watch_config  CRUD triggers'
 
 /*
+RUN 04/12/24
+SCRIPT FILE NAME: DEPLOY_AGRDR_FILEWATCHER_AUDIT_TBL_DDL.sql
+SERVER NAME: EC2AMAZ-NDT9QC4
+--######################
+#####DB: FIIT_MetadataDB
+@@@@@@@@@START --alter file_watch_config add last update and create user cols
+@@@@@@@@@Done --alter file_watch_config add last update and create user cols
+@@@@@@@@@START --create [file_watch_config_audit] table
+@@@@@@@@@DONE --create [file_watch_config_audit] table
+@@@@@@@@@START --create user file_watch_config CRUD triggers
+@@@@@@@@@DONE --create file_watch_config  CRUD triggers
+
+Completion time: 2024-04-13T11:57:32.3010017-07:00
+
+*/
+/*
 SCRIPT FILE NAME: DEPLOY_AGTRR_AUTOSYS_FILEWATER_AUDIT_TBL_DDL.sql
 SERVER NAME: EC2AMAZ-9Q9A89E
 --######################
@@ -374,3 +392,24 @@ SERVER NAME: EC2AMAZ-9Q9A89E
 Completion time: 2023-10-17T20:44:01.6934802-05:00
 */
 
+/*
+USE FIIT_MetadataDB
+GO
+SELECT @@SERVERNAME AS [Srv], DB_NAME() AS [DB], SCHEMA_NAME (schema_id) AS [Schema], 
+[name] As ObjName, create_date, modify_date, type, type_desc
+FROM sys.objects
+WHERE [name] IN (
+--###TABLE(S)
+'file_watch_config',
+'file_watch_config_audit'
+--###VIEW(S)
+--###TRIGGER(S)
+,'TR_file_watch_config_AfterDelete',
+'TR_file_watch_config_AfterInsert',
+'TR_file_watch_config_AfterUpdate'
+--###FUNCTION(S)
+--###PROCEDURE(S)
+)
+ORDER BY type, name
+GO
+*/
