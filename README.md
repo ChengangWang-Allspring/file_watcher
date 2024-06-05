@@ -7,6 +7,7 @@ A file watcher application build in Python, as a supplement for the Autosys work
 The file watcher is for watching, validating and transferring one or multiple files from a source location (S3 bucket or network share), to application inbound folder on EC2 server. The current build is only tested in Windows Server. 
 
 ## Version History
+* branch 0.1.15 (June 5, 2024): supports any number of environment variable names in the source_path, target_path and archive_path fields, surrounded by {} . Env variable(s) needs to be on the stack at runtime. Thanks contributor: @Jason Wymore
 * branch 0.1.14 (Apr 17, 2024): added `--clear-readonly` optional command line flag, so that file-watcher will attempt to clear read-only flag from source file location, if it's local directory or NAS/FSX share 
 * branch 0.1.13 (Jan 22, 2024): added two new date tokens `nextWeekDayPm` and `prevWeekDayPm`, also changed `today_Pm` to `todayPm. Thanks contributor: @Jason Wymore
 * branch 0.1.12 (Jan 8, 2024): when `use_archive` is set to 1, the File Watcher will now move (removing files from source_path)  files from "source_path" to "archive_path" instead of copying them, but only if "source_path" is not an S3 bucket. To ensure archive-file uniqueness, the File Watcher will append `_{yyyyMMdd}_{HHmmssfff}.${ext}` to the original filenames.
