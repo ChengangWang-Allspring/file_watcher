@@ -104,7 +104,7 @@ python -m file_watch test_job
 ```
 another example to run from Autosys command, use an environment variable for the Python virtual environment
 ```
-%PYATHON_VENV~ -m file_watch test_job
+%PYTHON_VENV% -m file_watch test_job
 ```
 
 ## Help
