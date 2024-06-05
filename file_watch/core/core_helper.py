@@ -194,23 +194,33 @@ def update_db_last_processed_file_datetime(job_name: str, my_datetime: datetime)
         conn.close()
 
 
-# Method takes a given string and looks for any instances of variables to be replaced.
-# Variables to be replaced are denoted the <% prefix and %> suffix.  So <%variable_name%>.
-# If it doesn't find any instances, it just returns the given string.
-# If it does find any instances, it replaces them with the current value of the environment variable name between them
-# If there is no ENV variable on the stack, it returns None
-def get_string_with_actual_value_of_env_variable(value):
-    return_value: str = value
-    if value is not None:
-        variable_delimiter_start: int = return_value.find('<%')
-        variable_delimiter_end: int = return_value.find('%>')
+def get_string_with_actual_value_of_env_variable(string_to_parse: str):
+    """parse a string that may contain one or more environment variables delimited by {}
+    If it doesn't find any delimited variables, it just returns the given string.
+    If it does find any delimited variables, it replaces them with the current value of the environment variable
+    name between the delimiters.
+    If it can't find the environment variable on the stack, it returns None.
+    """
+    return_string: str = string_to_parse
 
-        if (variable_delimiter_start != -1) and (variable_delimiter_end != -1):
-            variable_to_replace: str = return_value[variable_delimiter_start:(variable_delimiter_end + 2)]
-            env_var: str = variable_to_replace[2:-2]
-            current_env: str = os.environ.get(env_var)
-            if current_env is None:
-                return_value = None
-            else:
-                return_value = return_value.replace(variable_to_replace, current_env)
-    return return_value
+    tokens: list[str] = re.findall(Constant.REGEX_FILE_NAME, string_to_parse)
+
+    if len(tokens) == 0:
+        return return_string
+
+    for i, environment_variable in enumerate(tokens):
+        log = logging.getLogger()
+        log.info('-' * 80)
+        log.info(f'parsing string value: {string_to_parse} for environment variables ')
+        log.info(f'environment variable #{i}: {{{environment_variable}}}')
+
+        environment_variable_value: str = os.environ.get(environment_variable)
+
+        if environment_variable_value is None:
+            log.error(f'environment variable not present on the stack: {environment_variable} ')
+            return None
+
+        return_string = return_string.replace('{' + environment_variable + '}', environment_variable_value)
+    log.info(f'final parsed string: {return_string}')
+
+    return return_string

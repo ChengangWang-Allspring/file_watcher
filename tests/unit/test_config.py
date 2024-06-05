@@ -47,14 +47,14 @@ def test_missing_source_path(job_dict):
 
 @pytest.mark.config_test
 def test_source_path_with_env_var_on_the_stack(job_dict):
-        job_dict['source_path'] = 'd:\\<%ENV%>\\in'
+        job_dict['source_path'] = 'd:\\{ENV}\\in'
         os.environ["ENV"] = 'DEV'
         _ = ValidJobConfig(**job_dict)
 
 @pytest.mark.config_test
 def test_source_path_with_env_var_that_is_not_on_the_stack(job_dict):
     with pytest.raises(ValueError):
-        job_dict['source_path'] = 'd:\\<%ENV%>\\in'
+        job_dict['source_path'] = 'd:\\{ENV}\\in'
         os.environ.pop('ENV')
         _ = ValidJobConfig(**job_dict)
 
@@ -134,7 +134,7 @@ def test_bad_target_path(job_dict):
 @pytest.mark.config_test
 def test_target_path_with_env_var_on_the_stack(job_dict):
         job_dict['use_copy'] = True
-        job_dict['target_path'] = 'd:\\<%ENV%>\\out'
+        job_dict['target_path'] = 'd:\\{ENV}\\out'
         os.environ["ENV"] = 'DEV'
         _ = ValidJobConfig(**job_dict)
 
@@ -142,8 +142,25 @@ def test_target_path_with_env_var_on_the_stack(job_dict):
 def test_target_path_with_env_var_that_is_not_on_the_stack(job_dict):
     with pytest.raises(ValueError):
         job_dict['use_copy'] = True
-        job_dict['target_path'] = 'd:\\<%ENV%>\\out'
+        job_dict['target_path'] = 'd:\\{ENV}\\out'
         os.environ.pop('ENV')
+        _ = ValidJobConfig(**job_dict)
+
+@pytest.mark.config_test
+def test_target_path_with_multiple_var_on_the_stack(job_dict):
+        job_dict['use_copy'] = True
+        job_dict['target_path'] = 'd:\\{ENV}\\out\\{ENV}\\archive\\{ENV_VAR2}'
+        os.environ["ENV"] = 'DEV'
+        os.environ["ENV_VAR2"] = 'TEST'
+        _ = ValidJobConfig(**job_dict)
+
+@pytest.mark.config_test
+def test_target_path_with_multiple_var_not_all_on_the_stack(job_dict):
+    with pytest.raises(ValueError):
+        job_dict['use_copy'] = True
+        job_dict['target_path'] = 'd:\\{ENV}\\out\\{ENV}\\archive\\{ENV_VAR2}'
+        os.environ["ENV"] = 'DEV'
+        os.environ.pop('ENV_VAR2')
         _ = ValidJobConfig(**job_dict)
 
 @pytest.mark.config_test
@@ -164,7 +181,7 @@ def test_bad_archive_path(job_dict):
 @pytest.mark.config_test
 def test_archive_path_with_env_var_on_the_stack(job_dict):
         job_dict['use_archive'] = True
-        job_dict['archive_path'] = 'd:\\<%ENV%>\\archive'
+        job_dict['archive_path'] = 'd:\\{ENV}\\archive'
         os.environ["ENV"] = 'DEV'
         _ = ValidJobConfig(**job_dict)
 
@@ -172,7 +189,7 @@ def test_archive_path_with_env_var_on_the_stack(job_dict):
 def test_archive_path_with_env_var_that_is_not_on_the_stack(job_dict):
     with pytest.raises(ValueError):
         job_dict['use_archive'] = True
-        job_dict['archive_path'] = 'd:\\<%ENV%>\\archive'
+        job_dict['archive_path'] = 'd:\\{ENV}\\archive'
         os.environ.pop('ENV')
         _ = ValidJobConfig(**job_dict)
 
